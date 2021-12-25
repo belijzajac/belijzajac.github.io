@@ -1,4 +1,4 @@
-baseURL = "https://belijzajac.github.io"
+baseURL = "https://belijzajac.dev"
 languageCode = "en-us"
 title = "belijzajac.dev"
 theme = "minimal-bootstrap-hugo-theme"
