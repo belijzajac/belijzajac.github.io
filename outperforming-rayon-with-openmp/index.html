@@ -13,7 +13,7 @@
 <meta name=theme-color content="#ffffff">
 <link rel=stylesheet href=https://belijzajac.dev/css/bootstrap.min.css>
 <title>Outperforming Rayon with OpenMP | belijzajac.dev</title>
-<style>body{min-width:300px}.custom-navbar{margin-bottom:1em;height:60px}.custom-navbar a{display:inline-block;padding:18px 0;margin-right:1em;font-weight:700}.custom-navbar a:hover,.custom-navbar a:focus{text-decoration:none}@media print{.custom-navbar{display:none}}article{padding-bottom:1em}img{max-width:100%}body{background-color:#fff}body{color:#212529}a{color:#007bff}a:hover,a:focus{color:#0056b3}.custom-navbar{background-color:#212529}.custom-navbar a{color:rgba(255,255,255,.75)}.custom-navbar a:hover,.custom-navbar a:focus{color:#fff}.container{max-width:800px}pre{display:block;padding:9.5px;word-break:break-all;word-wrap:break-word;background-color:#f5f5f5}pre code{padding:0;font-size:inherit;color:inherit;white-space:pre-wrap;background-color:transparent;border:none;border-radius:0}code{padding:2px 4px;color:inherit;background-color:#f5f5f5;border:1px solid #ccc;border-radius:4px;font-size:.9em}blockquote,.blockquote{padding:10px 20px;margin:0 0 20px;font-size:1em;border-left:5px solid #6c757d}.footer{text-align:center;color:#b3b3b3}.footer a{color:inherit}.separator{border:0;border-top:3px dashed #ccc}.email{background-color:#101010;color:#fff}</style>
+<style>body{min-width:300px}.custom-navbar{margin-bottom:1em;height:60px}.custom-navbar a{display:inline-block;padding:18px 0;margin-right:1em;font-weight:700}.custom-navbar a:hover,.custom-navbar a:focus{text-decoration:none}@media print{.custom-navbar{display:none}}article{padding-bottom:1em}img{max-width:100%}body{background-color:#fff}body{color:#212529}a{color:#007bff}a:hover,a:focus{color:#0056b3}.custom-navbar{background-color:#212529}.custom-navbar a{color:rgba(255,255,255,.75)}.custom-navbar a:hover,.custom-navbar a:focus{color:#fff}.container{max-width:850px}pre{display:block;padding:9.5px;word-break:break-all;word-wrap:break-word;background-color:#f5f5f5}pre code{padding:0;font-size:inherit;color:inherit;white-space:pre-wrap;background-color:transparent;border:none;border-radius:0}code{padding:2px 4px;color:inherit;background-color:#f5f5f5;border:1px solid #ccc;border-radius:4px;font-size:.9em}blockquote,.blockquote{padding:10px 20px;margin:0 0 20px;font-size:1em;border-left:5px solid #6c757d}.footer{text-align:center;color:#b3b3b3}.footer a{color:inherit}.separator{border:0;border-top:3px dashed #ccc}.email{background-color:#101010;color:#fff}</style>
 </head>
 <body>
 <nav class=custom-navbar>
@@ -31,7 +31,7 @@
 <h1>Outperforming Rayon with OpenMP</h1>
 <p>
 <small class=text-secondary>
-Nov 16, 2021, updated Dec 25, 2021
+Nov 16, 2021, updated Dec 29, 2021
 </small>
 <small><code><a href=https://belijzajac.dev/tags/rust>rust</a></code></small>
 <small><code><a href=https://belijzajac.dev/tags/c>c</a></code></small>
@@ -42,7 +42,7 @@ Nov 16, 2021, updated Dec 25, 2021
 <small><code><a href=https://belijzajac.dev/tags/bls12-381>bls12-381</a></code></small>
 </p>
 <h2 id=whats-all-the-fuss-about>What’s all the fuss about?</h2>
-<p>For my Blockchain Technologies course we had two teams competing against each other to produce the fastest Rust library for kzg commitments. Both of us were using the same backend, that is <a href=https://github.com/supranational/blst>blst</a> (implemented in assembly but had direct bindings for Rust and C). The first team, <a href=https://github.com/sifraitech/kzg/tree/main/blst-from-scratch>blst-from-scratch</a>, were using the said Rust bindings to produce an interface as closer to <a href=https://github.com/benjaminion/c-kzg>c-kzg</a>, whereas the second <a href=https://github.com/sifraitech/kzg/tree/main/ckzg>ckzg</a> team, which I was part of, was responsible for porting the latter over to Rust.</p>
+<p>For my Blockchain Technologies course, we had two teams competing against each other to produce the fastest Rust library for kzg commitments. Both of us were using the same backend, that is, <a href=https://github.com/supranational/blst>blst</a> (implemented in assembly but had direct bindings for Rust and C). The first team, <a href=https://github.com/sifraitech/kzg/tree/main/blst-from-scratch>blst-from-scratch</a>, was using the said Rust bindings to produce an interface closer to <a href=https://github.com/benjaminion/c-kzg>c-kzg</a>, whereas the <a href=https://github.com/sifraitech/kzg/tree/main/ckzg>ckzg</a> team, which I was part of, was responsible for porting the latter over to Rust.</p>
 <h2 id=choosing-the-right-tool-for-the-job>Choosing the right tool for the job</h2>
 <p>While it&rsquo;s kind of obvious for Rust programmers to pick <code>Rayon</code> because there aren&rsquo;t any other viable options out of the box, I had to make a decision on which direction to go by:</p>
 <ul>
@@ -50,11 +50,11 @@ Nov 16, 2021, updated Dec 25, 2021
 <li>Some random guy&rsquo;s threadpool library with the most stars from GitHub</li>
 <li><code>OpenMP</code></li>
 </ul>
-<p>I picked <code>OpenMP</code> because while experimenting, I found it to produce the best results, and it was no-brainer to use except for coming up on how to seemingly integrate it with Rust that would work on multiple platforms.</p>
+<p>I picked <code>OpenMP</code> because while experimenting, I found it to produce the best results, and it was a no-brainer to use except for coming up with how to seemingly integrate it with Rust so that it would work on multiple platforms.</p>
 <h2 id=searching-for-bottlenecks>Searching for bottlenecks</h2>
-<p>The general procedure for looking for what to parallelize is to use tools such as <code>Perf</code> that produces flamegraphs, which are a really nice visual way to represent the CPU time of a program. Below is the flamegraph that was generated by running <code>fft_g1</code> benchmark:</p>
+<p>The general procedure for looking for what to parallelize is to use tools such as <code>Perf</code> that produce flamegraphs, which are a really nice visual way to represent the CPU time of a program. Below is the flamegraph that was generated by running the <code>fft_g1</code> benchmark:</p>
 <p><img src=/post-images/flame-graphu.svg alt=flamegraph-of-fft-g1></p>
-<p>which, in fact, had a huge impact on performance with the majority of calls tracing down to assembly code; a similar kzg implementation library (<a href=https://github.com/protolambda/go-kzg/blob/master/BENCH.md>go-kzg</a>) that was taken as a reference a few times while producing unit tests and benchmarks showed that their <code>fft_g1</code> benchmark took the longest to execute among others.</p>
+<p>which, in fact, had a huge impact on performance with the majority of calls tracing down to assembly code; a similar kzg implementation library (<a href=https://github.com/protolambda/go-kzg/blob/master/BENCH.md>go-kzg</a>) that was taken as a reference a few times while producing unit tests and benchmarks, showed that their <code>fft_g1</code> benchmark took the longest time to execute, among others.</p>
 <p>So, we have 7 groups of benchmarks</p>
 <ul>
 <li>das</li>
@@ -67,6 +67,7 @@ Nov 16, 2021, updated Dec 25, 2021
 </ul>
 <p>of which let&rsquo;s pick <code>fft_g1</code> from the <code>fft</code> group to parallelize out!</p>
 <h2 id=parallelizing-fft_g1>Parallelizing fft_g1</h2>
+<p>The <code>fft_g1</code> function in all cases calls the <code>fft_g1_fast</code> function, which applies the <em>divide-and-conquer</em> principle to divide a large problem into smaller subproblems, recursively solving each of them. The general procedure here is to distribute work (<code>fft_f1_fast</code>s) among worker threads.</p>
 <p>The blst-from-scratch team implemented it as follows:</p>
 <div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-rust data-lang=rust><span style=color:#8be9fd;font-style:italic>let</span> (lo, hi) <span style=color:#ff79c6>=</span> ret.split_at_mut(half);
 rayon::join(
@@ -100,10 +101,11 @@ rayon::join(
   g1_sub(<span style=color:#ff79c6>&amp;</span>out[i <span style=color:#ff79c6>+</span> half], <span style=color:#ff79c6>&amp;</span>out[i], <span style=color:#ff79c6>&amp;</span>y_times_root);
   g1_add_or_dbl(<span style=color:#ff79c6>&amp;</span>out[i], <span style=color:#ff79c6>&amp;</span>out[i], <span style=color:#ff79c6>&amp;</span>y_times_root);
 }
-</code></pre></div><h2 id=results-comparison>Results comparison</h2>
+</code></pre></div><p>Here I used OpenMP parallel for-loop as well, because I noticed it yielded 5% greater performance on my personal machine. Considering the <code>ubuntu-latest</code> runner in GitHub Actions CI had only two threads, the halves of the problem were shared among two threads where each ran the for-loop to do arithmetic operations on polynomial points.</p>
+<h2 id=results-comparison>Results comparison</h2>
 <h3 id=local-c-kzg-benchmark>Local c-kzg benchmark</h3>
 <p>Running on my personal computer with 4 threads @ 3.50GHz, I was able to obtain the following results:</p>
-<p>Original:</p>
+<p>Original, unaltered c-kzg library:</p>
 <pre tabindex=0><code>./fft_g1_bench
 *** Benchmarking FFT_g1, 1 second per test.
 fft_g1/scale_4 1729769 ns/op
@@ -118,7 +120,7 @@ fft_g1/scale_12 2025633037 ns/op
 fft_g1/scale_13 4479830518 ns/op
 fft_g1/scale_14 9754557496 ns/op
 fft_g1/scale_15 21125613058 ns/op
-</code></pre><p>Parallelized:</p>
+</code></pre><p>The parallelized version of the c-kzg library:</p>
 <pre tabindex=0><code>OMP_NUM_THREADS=4 ./fft_g1_bench
 *** Benchmarking FFT_g1, 1 second per test.
 fft_g1/scale_4 839454 ns/op
@@ -135,7 +137,7 @@ fft_g1/scale_14 4879448286 ns/op
 fft_g1/scale_15 10650876381 ns/op
 </code></pre><p>that&rsquo;s <strong>twice as fast!</strong></p>
 <h3 id=github-actions-benchmark>GitHub Actions benchmark</h3>
-<p>The <code>fft_g1</code> benchmark was limited to scale 7 because the overall run time for the job usually exceeded the 6 hours limit, that used to automatically cancel any other running jobs.</p>
+<p>The <code>fft_g1</code> benchmark was limited to scale 7 because the overall run time for the job usually exceeded the 6 hour limit, and that used to automatically cancel other running tasks.</p>
 <h4 id=blst-from-scratch>blst-from-scratch</h4>
 <p><img src=/post-images/from-scratch-github-actions.png alt=from-scratch-github-actions></p>
 <pre tabindex=0><code>Benchmarking bench_fft_g1 scale: '7'
