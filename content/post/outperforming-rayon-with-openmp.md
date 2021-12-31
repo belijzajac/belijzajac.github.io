@@ -16,7 +16,7 @@ For my Blockchain Technologies course, we had two teams competing against each o
 While it's kind of obvious for Rust programmers to pick `Rayon` because there aren't any other viable options out of the box, I had to make a decision on which direction to go by:
 
 * Use `pthread`s manually
-* Some random guy's threadpool library with the most stars from GitHub
+* Some random guy's threadpool library from GitHub with the most stars
 * `OpenMP`
 
 I picked `OpenMP` because while experimenting, I found it to produce the best results, and it was a no-brainer to use except for coming up with how to seemingly integrate it with Rust so that it would work on multiple platforms.
