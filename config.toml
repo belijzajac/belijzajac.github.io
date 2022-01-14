@@ -11,7 +11,7 @@ theme = "minimal-bootstrap-hugo-theme"
   post = "/:filename/"
 
 [params]
-  description = "Some description"
+  description = "belijzajac's personal blog, where he shows off some of his current, past, and future projects as well as shares personal experience of developing projects involving modern C++ and Linux!"
   contentBackgroundColor = "#fff"
   contentTextColor = "#212529"
   contentLinkColor = "#007bff"
