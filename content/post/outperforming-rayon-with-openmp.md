@@ -101,7 +101,7 @@ Running on my personal laptop with i5-7300HQ (4 threads overclocked @ 3.50GHz), 
 
 ```bash {hl_lines=[14]}
 $ ./fft_g1_bench
-*** Benchmarking FFT_g1, 1 second per test.         
+*** Benchmarking FFT_g1, 1 second per test.       
 fft_g1/scale_4 1729769 ns/op
 fft_g1/scale_5 4935085 ns/op
 fft_g1/scale_6 12897731 ns/op
@@ -120,7 +120,7 @@ fft_g1/scale_15 21125613058 ns/op
 
 ```bash {hl_lines=[14]}
 $ OMP_NUM_THREADS=4 ./fft_g1_bench
-*** Benchmarking FFT_g1, 1 second per test.         
+*** Benchmarking FFT_g1, 1 second per test.       
 fft_g1/scale_4 839454 ns/op
 fft_g1/scale_5 2378457 ns/op
 fft_g1/scale_6 6404191 ns/op
