@@ -9,11 +9,11 @@ tags: ["rust", "c", "perf", "openmp", "blockchain", "kzg-proofs", "bls12-381"]
 
 ## What’s all the fuss about?
 
-For my Blockchain Technologies course, we had two teams competing against each other to produce the fastest Rust library for kzg commitments. Both of us were using the same backend, that is, [blst](https://github.com/supranational/blst) (implemented in assembly but had direct bindings for Rust and C). The first team,  [blst-from-scratch](https://github.com/sifraitech/kzg/tree/main/blst-from-scratch), was using the said Rust bindings to produce an interface closer to [c-kzg](https://github.com/benjaminion/c-kzg), whereas the [ckzg](https://github.com/sifraitech/kzg/tree/main/ckzg) team, which I was part of, was responsible for porting the latter over to Rust.
+For the Blockchain Technologies course, we had two teams competing against each other to produce the fastest Rust library for kzg commitments. Both of us were using the same backend, that is, [blst](https://github.com/supranational/blst) (implemented in assembly but had direct bindings for Rust and C). The first team,  [blst-from-scratch](https://github.com/sifraitech/kzg/tree/main/blst-from-scratch), was using the said Rust bindings to produce an interface closer to [c-kzg](https://github.com/benjaminion/c-kzg), whereas the [ckzg](https://github.com/sifraitech/kzg/tree/main/ckzg) team, which I was part of, was responsible for porting the latter over to Rust.
 
 ## Choosing the right tool for the job
 
-It's kind of obvious for Rust programmers to pick `Rayon` out of the box because there aren't any other viable options  for writing parallel code, except for `std::thread` but who wants to manually create and manage threads when there exists simpler solutions, anyway? I had to make a decision which technique to go by:
+It's kind of obvious for Rust programmers to pick `Rayon` out of the box because there aren't any other viable options for writing parallel code, except for `std::thread`s, but who wants to manually create and manage threads when simpler solutions exist, anyway? I had to make a decision on which technique to go by:
 
 * Use `pthread`s manually
 * Some random guy's threadpool library from GitHub with the most stars
@@ -89,7 +89,7 @@ for (uint64_t i = 0; i < half; i++) {
 
 In addition to parallel sections, I also utilized OpenMP's parallel for-loop, because I noticed it yielded a **5% greater performance** on my personal machine. Considering the `ubuntu-latest` runner in GitHub Actions CI had only two available threads, the halves of the problem were shared among those two threads where each ran the for-loop to do arithmetic operations on polynomial `G1` points.
 
-In the above code snippets, `fft_g1` calls `fft_g1_fast`, which up to scale 16 should less than or exactly `1 << 15` times recursively call itself, where each such call will be distributed among the 2 threads. Since we're computing `fft_g1` up to scale 8, there should be `(1 << 7) + 1` tasks (not to be confused by OpenMP's `task` pragma directive!) for `fft_g1_fast` or `129` such tasks that will be run in parallel!
+In the above code snippets, `fft_g1` calls `fft_g1_fast`, which up to scale 16 should at most `1 << 15` times recursively call itself, where each such call will be distributed among the 2 threads. Since we're computing `fft_g1` up to scale 8, there should be `(1 << 7) + 1` tasks (not to be confused by OpenMP's `task` pragma directive!) for `fft_g1_fast` or `129` such tasks that will be run in parallel!
 
 ## Local c-kzg benchmark
 
@@ -139,7 +139,7 @@ fft_g1/scale_15 10650876381 ns/op
 
 That's **twice as fast** with as little effort as putting in a few pragmas!
 
-## GitHub Actions benchmarks
+## GitHub Actions CI benchmarks
 
 The `fft_g1` benchmark was limited to scale 7 because the overall run time for the job exceeds the 6 hour limit if I were to benchmark it  up to scale 16, as Criterion runs each iteration a couple of hundred times to produce more accurate results, and that used to automatically cancel other running tasks as jobs submitted to GitHub Actions have a limit of 360 minutes.
 
@@ -183,7 +183,7 @@ Benchmarking bench_fft_g1 scale: '7': Analyzing
 bench_fft_g1 scale: '7' time:   [32.194 ms 32.471 ms 32.760 ms]
 ```
 
-Yet the parallel version of the `fft_g1` algorithm performed much faster than it did for blst-from-scratch even though both unparallelized versions performed evenly:
+Yet the parallel version of the `fft_g1` algorithm performed much faster than it did for blst-from-scratch, even though both unparallelized versions for both teams performed evenly:
 
 ```text {hl_lines=[5,6]}
 Benchmarking bench_fft_g1 scale: '7'
@@ -199,6 +199,6 @@ To cut a long story short, ckzg outperformed blst-from-scratch in all of the 7 b
 
 ## Summary
 
-* OpenMP lets quickly propotype what is feasible to parallelize out with the help of CPU profiling tools such as Perf
-* Criterion is actually a really nice benchmarking tool for measuring performance, especially when integrated into CI
+* OpenMP lets you quickly propotype what is feasible to parallelize with the help of CPU profiling tools such as Perf
+* Criterion is actually a really nice benchmarking tool to measure performance, especially when integrated into CI
 * ckzg has surpassed blst-from-scratch in becoming the fastest Rust library (yet) for kzg10 commitments
