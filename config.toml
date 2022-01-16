@@ -26,6 +26,7 @@ theme = "minimal-bootstrap-hugo-theme"
   customCodeStyle = true
   customBlockquoteStyle = true
   showPostSummary = false
+  googleAnalytics = "UA-217331412-1"
   faviconSafariPinnedTabColor = "#5bbad5"
   faviconMsApplicationTileColor = "#da532c"
   faviconThemeColor = "#ffffff"
