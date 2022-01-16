@@ -42,9 +42,9 @@ Nov 16, 2021, updated Jan 16, 2022
 <small><code><a href=https://belijzajac.dev/tags/bls12-381>bls12-381</a></code></small>
 </p>
 <h2 id=whats-all-the-fuss-about>What’s all the fuss about?</h2>
-<p>For my Blockchain Technologies course, we had two teams competing against each other to produce the fastest Rust library for kzg commitments. Both of us were using the same backend, that is, <a href=https://github.com/supranational/blst>blst</a> (implemented in assembly but had direct bindings for Rust and C). The first team, <a href=https://github.com/sifraitech/kzg/tree/main/blst-from-scratch>blst-from-scratch</a>, was using the said Rust bindings to produce an interface closer to <a href=https://github.com/benjaminion/c-kzg>c-kzg</a>, whereas the <a href=https://github.com/sifraitech/kzg/tree/main/ckzg>ckzg</a> team, which I was part of, was responsible for porting the latter over to Rust.</p>
+<p>For the Blockchain Technologies course, we had two teams competing against each other to produce the fastest Rust library for kzg commitments. Both of us were using the same backend, that is, <a href=https://github.com/supranational/blst>blst</a> (implemented in assembly but had direct bindings for Rust and C). The first team, <a href=https://github.com/sifraitech/kzg/tree/main/blst-from-scratch>blst-from-scratch</a>, was using the said Rust bindings to produce an interface closer to <a href=https://github.com/benjaminion/c-kzg>c-kzg</a>, whereas the <a href=https://github.com/sifraitech/kzg/tree/main/ckzg>ckzg</a> team, which I was part of, was responsible for porting the latter over to Rust.</p>
 <h2 id=choosing-the-right-tool-for-the-job>Choosing the right tool for the job</h2>
-<p>It&rsquo;s kind of obvious for Rust programmers to pick <code>Rayon</code> out of the box because there aren&rsquo;t any other viable options for writing parallel code, except for <code>std::thread</code> but who wants to manually create and manage threads when there exists simpler solutions, anyway? I had to make a decision which technique to go by:</p>
+<p>It&rsquo;s kind of obvious for Rust programmers to pick <code>Rayon</code> out of the box because there aren&rsquo;t any other viable options for writing parallel code, except for <code>std::thread</code>s, but who wants to manually create and manage threads when simpler solutions exist, anyway? I had to make a decision on which technique to go by:</p>
 <ul>
 <li>Use <code>pthread</code>s manually</li>
 <li>Some random guy&rsquo;s threadpool library from GitHub with the most stars</li>
@@ -102,7 +102,7 @@ Nov 16, 2021, updated Jan 16, 2022
   g1_add_or_dbl(<span style=color:#ff79c6>&amp;</span>out[i], <span style=color:#ff79c6>&amp;</span>out[i], <span style=color:#ff79c6>&amp;</span>y_times_root);
 }
 </code></pre></div><p>In addition to parallel sections, I also utilized OpenMP&rsquo;s parallel for-loop, because I noticed it yielded a <strong>5% greater performance</strong> on my personal machine. Considering the <code>ubuntu-latest</code> runner in GitHub Actions CI had only two available threads, the halves of the problem were shared among those two threads where each ran the for-loop to do arithmetic operations on polynomial <code>G1</code> points.</p>
-<p>In the above code snippets, <code>fft_g1</code> calls <code>fft_g1_fast</code>, which up to scale 16 should less than or exactly <code>1 &lt;&lt; 15</code> times recursively call itself, where each such call will be distributed among the 2 threads. Since we&rsquo;re computing <code>fft_g1</code> up to scale 8, there should be <code>(1 &lt;&lt; 7) + 1</code> tasks (not to be confused by OpenMP&rsquo;s <code>task</code> pragma directive!) for <code>fft_g1_fast</code> or <code>129</code> such tasks that will be run in parallel!</p>
+<p>In the above code snippets, <code>fft_g1</code> calls <code>fft_g1_fast</code>, which up to scale 16 should at most <code>1 &lt;&lt; 15</code> times recursively call itself, where each such call will be distributed among the 2 threads. Since we&rsquo;re computing <code>fft_g1</code> up to scale 8, there should be <code>(1 &lt;&lt; 7) + 1</code> tasks (not to be confused by OpenMP&rsquo;s <code>task</code> pragma directive!) for <code>fft_g1_fast</code> or <code>129</code> such tasks that will be run in parallel!</p>
 <h2 id=local-c-kzg-benchmark>Local c-kzg benchmark</h2>
 <p>Running on my personal laptop with i5-7300HQ (4 threads overclocked @ 3.50GHz), all mitigations turned off, and a custom Liquorix kernel, I was able to produce the following results:</p>
 <table>
@@ -139,7 +139,7 @@ fft_g1/scale_14 <span style=color:#bd93f9>4879448286</span> ns/op
 <span style=display:block;width:100%;background-color:#3d3f4a>fft_g1/scale_15 <span style=color:#bd93f9>10650876381</span> ns/op
 </span></code></pre></div></td></tr> </table>
 <p>That&rsquo;s <strong>twice as fast</strong> with as little effort as putting in a few pragmas!</p>
-<h2 id=github-actions-benchmarks>GitHub Actions benchmarks</h2>
+<h2 id=github-actions-ci-benchmarks>GitHub Actions CI benchmarks</h2>
 <p>The <code>fft_g1</code> benchmark was limited to scale 7 because the overall run time for the job exceeds the 6 hour limit if I were to benchmark it up to scale 16, as Criterion runs each iteration a couple of hundred times to produce more accurate results, and that used to automatically cancel other running tasks as jobs submitted to GitHub Actions have a limit of 360 minutes.</p>
 <h3 id=1-blst-from-scratch-benchmark>1. blst-from-scratch benchmark</h3>
 <p><img src=/post-images/from-scratch-github-actions.png alt=from-scratch-github-actions></p>
@@ -165,7 +165,7 @@ Benchmarking bench_fft_g1 scale: &#39;7&#39;: Warming up for 3.0000 s
 Benchmarking bench_fft_g1 scale: &#39;7&#39;: Collecting 100 samples in estimated 6.8313 s (200 iterations)
 Benchmarking bench_fft_g1 scale: &#39;7&#39;: Analyzing
 <span style=display:block;width:100%;background-color:#3d3f4a>bench_fft_g1 scale: &#39;7&#39; time:   [32.194 ms 32.471 ms 32.760 ms]
-</span></code></pre></div><p>Yet the parallel version of the <code>fft_g1</code> algorithm performed much faster than it did for blst-from-scratch even though both unparallelized versions performed evenly:</p>
+</span></code></pre></div><p>Yet the parallel version of the <code>fft_g1</code> algorithm performed much faster than it did for blst-from-scratch, even though both unparallelized versions for both teams performed evenly:</p>
 <div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>Benchmarking bench_fft_g1 scale: &#39;7&#39;
 Benchmarking bench_fft_g1 scale: &#39;7&#39;: Warming up for 3.0000 s
 Benchmarking bench_fft_g1 scale: &#39;7&#39;: Collecting 100 samples in estimated 5.0701 s (300 iterations)
@@ -176,8 +176,8 @@ Benchmarking bench_fft_g1 scale: &#39;7&#39;: Analyzing
 </code></pre></div><p>To cut a long story short, ckzg outperformed blst-from-scratch in all of the 7 benchmark groups.</p>
 <h2 id=summary>Summary</h2>
 <ul>
-<li>OpenMP lets quickly propotype what is feasible to parallelize out with the help of CPU profiling tools such as Perf</li>
-<li>Criterion is actually a really nice benchmarking tool for measuring performance, especially when integrated into CI</li>
+<li>OpenMP lets you quickly propotype what is feasible to parallelize with the help of CPU profiling tools such as Perf</li>
+<li>Criterion is actually a really nice benchmarking tool to measure performance, especially when integrated into CI</li>
 <li>ckzg has surpassed blst-from-scratch in becoming the fastest Rust library (yet) for kzg10 commitments</li>
 </ul>
 <div class=separator></div>
