@@ -7,7 +7,7 @@ draft: false
 tags: ["rust", "c", "perf", "openmp", "blockchain", "kzg-proofs", "bls12-381"]
 ---
 
-![rip-craberino](/post-images/rip-craberino.png)
+![rip-craberino](/post-images/rip-craberino.jpg)
 
 ## What’s all the fuss about?
 
