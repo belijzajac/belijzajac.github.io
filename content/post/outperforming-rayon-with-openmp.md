@@ -9,9 +9,9 @@ tags: ["rust", "c", "perf", "openmp", "blockchain", "kzg-proofs", "bls12-381"]
 
 ![rip-craberino](/post-images/rip-craberino.jpg)
 
-## What’s all the fuss about?
+## What’s it all about?
 
-For the Blockchain Technologies course, we had two teams competing against each other to produce the fastest Rust library for kzg commitments. Both of us were using the same backend, that is, [blst](https://github.com/supranational/blst) (implemented in assembly but had direct bindings for Rust and C). The first team,  [blst-from-scratch](https://github.com/sifraitech/kzg/tree/main/blst-from-scratch), was using the said Rust bindings to produce an interface closer to [c-kzg](https://github.com/benjaminion/c-kzg), whereas the [ckzg](https://github.com/sifraitech/kzg/tree/main/ckzg) team, which I was part of, was responsible for porting the latter over to Rust.
+For the Blockchain Technologies course, students were paired into groups and assigned to produce the fastest Rust library (crate) implementing the KZG10 scheme. Two teams used the same backend, that is, [blst](https://github.com/supranational/blst) (implemented in assembly with direct bindings for Rust and C). The first team,  [blst-from-scratch](https://github.com/sifraitech/kzg/tree/main/blst-from-scratch), was using the said Rust bindings to produce an interface closer to [c-kzg](https://github.com/benjaminion/c-kzg), whereas the [ckzg](https://github.com/sifraitech/kzg/tree/main/ckzg) team, which I was part of, was responsible for porting the latter over to Rust.
 
 ## Choosing the right tool for the job
 
@@ -31,7 +31,7 @@ The general procedure for looking for what to parallelize is to use CPU profilin
 
 which, as I've noticed, had a huge impact on performance with the majority of calls tracing down to assembly code; a similar kzg implementation library ([go-kzg](https://github.com/protolambda/go-kzg/blob/master/BENCH.md)) that was taken as a reference a few times while producing unit tests and benchmarks, showed that their `fft_g1` benchmark took the longest time to execute as well, among others.
 
-So, we have 7 groups of benchmarks
+So, we have 7 groups of benchmarks:
 
 * das
 * fft
