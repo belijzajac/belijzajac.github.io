@@ -12,9 +12,9 @@ theme = "minimal-bootstrap-hugo-theme"
 
 [params]
   description = "belijzajac's personal blog, where he shows off some of his current, past, and future projects as well as shares personal experience of developing projects involving modern C++ and Linux!"
-  aboutAuthor = "I'm a software developer working full time at [redacted] and studying part time, as well as working on a compiler project (which hopefully will be finished this year for sure) on the side while gathering ideas for the next project involving modern C++20! I've got a keen interest in modern C++17 (and up) and Linux. I'm available for collaborations on projects and can be reached at"
+  aboutAuthor = "I'm a software developer with a diverse set of interests that include, but are not limited to, bare-metal assembly, Linux, and modern C++20. I've been using Linux since I was a kid (since that's what my toaster laptop could handle back in 2012), spreading FUD botnets, performing SQL injections on local WordPress websites, and more. I'm willing to collaborate on projects and can be reached at"
   selfieAuthor = "author.jpg"
-  emailAuthor = "$ echo dGF1dHZ5ZGFzNzQ5QGdtYWlsLmNvbQ== | base64 -d"
+  emailAuthor = "$ echo Z2l0aHViQGJlbGlqemFqYWMuZGV2Cg== | base64 -d"
   contentBackgroundTexture = "/white-leather-texture-1945.png"
   contentBackgroundColor = "#fff"
   contentTextColor = "#212529"
