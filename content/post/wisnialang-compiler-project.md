@@ -11,7 +11,7 @@ tags: ["c++", "elf", "compiler", "llvm", "rust"]
 
 ## Introduction
 
-For the past 3 years, I have been working on a [compiler](https://github.com/belijzajac/WisniaLang) for an experimental programming language that compiles to native machine code. It focuses on delivering small Linux binaries (ELF x86_64) with no LLVM dependency. As a result, what it actually competes with is the LLVM toolchain, on which a large number of other programming languages rely extensively.
+For the past 3 years, I have been working on a [compiler](https://github.com/belijzajac/WisniaLang) for an experimental programming language that compiles to native machine code. It focuses on delivering tiny Linux binaries (ELF x86_64) with no LLVM dependency. As a result, what it actually competes with is the LLVM toolchain, on which a large number of other programming languages rely extensively.
 
 ## Architecture
 
