@@ -1,0 +1,155 @@
+<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=generator content="Hugo 0.105.0"><meta name=description content="belijzajac's personal blog, where he shows off some of his current, past, and future projects as well as shares personal experience of developing projects involving modern C++ and Linux!"><link rel=apple-touch-icon sizes=180x180 href=https://belijzajac.dev/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=https://belijzajac.dev/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=https://belijzajac.dev/favicon-16x16.png><link rel=manifest href=https://belijzajac.dev/site.webmanifest><link rel=mask-icon href=https://belijzajac.dev/safari-pinned-tab.svg color=#5bbad5><meta name=msapplication-TileColor content="#da532c"><meta name=theme-color content="#ffffff"><link rel=stylesheet href=https://belijzajac.dev/css/bootstrap.min.css><title>WisniaLang: Compiler Project | belijzajac.dev</title><style>body{min-width:300px}.custom-navbar{margin-bottom:1em;height:60px}.custom-navbar a{display:inline-block;padding:18px 0;margin-right:1em;font-weight:700}.custom-navbar a:hover,.custom-navbar a:focus{text-decoration:none}@media print{.custom-navbar{display:none}}article{padding-bottom:1em}img{max-width:100%}body{background-image:url(/white-leather-texture-1945.png);background-repeat:repeat}body{background-color:#fff}body{color:#212529}a{color:#007bff}a:hover,a:focus{color:#0056b3}.custom-navbar{background-color:#212529}.custom-navbar a{color:rgba(255,255,255,.75)}.custom-navbar a:hover,.custom-navbar a:focus{color:#fff}.container{max-width:900px}pre{display:block;padding:9.5px;word-break:break-all;word-wrap:break-word;background-color:#f5f5f5}pre code{padding:0;font-size:inherit;color:inherit;white-space:pre-wrap;background-color:transparent;border:none;border-radius:0}code{padding:2px 4px;color:inherit;background-color:#f5f5f5;border:1px solid #ccc;border-radius:4px;font-size:.9em}blockquote,.blockquote{padding:10px 20px;margin:0 0 20px;font-size:1em;border-left:5px solid #6c757d}.footer{text-align:center;color:#b3b3b3}.footer a{color:inherit}.separator{border:0;border-top:3px dashed #000}.email{background-color:#101010;color:#fff}</style></head><body><nav class=custom-navbar><div class=container><span class=navbar-text><p style=color:#fff;font-size:20px><b>belijzajac.dev</b></p></span><span style=padding-left:20px><a href=/>Posts</a>
+<a href=/index.xml>RSS</a></div></nav><div class=container><article><h1>WisniaLang: Compiler Project</h1><p><small class=text-secondary>Oct 17, 2022, updated Nov 13, 2022</small>
+<small><code><a href=https://belijzajac.dev/tags/c++>c++</a></code></small>
+<small><code><a href=https://belijzajac.dev/tags/elf>elf</a></code></small>
+<small><code><a href=https://belijzajac.dev/tags/compiler>compiler</a></code></small>
+<small><code><a href=https://belijzajac.dev/tags/llvm>llvm</a></code></small>
+<small><code><a href=https://belijzajac.dev/tags/rust>rust</a></code></small></p><p><img src=/post-images/dragon-maid-compiler-book.jpg alt=dragon-book></p><h2 id=introduction>Introduction</h2><p>For the past 3 years, I have been working on a <a href=https://github.com/belijzajac/WisniaLang>compiler</a> for an experimental programming language that compiles to native machine code. It focuses on delivering small Linux binaries (ELF x86_64) with no LLVM dependency. As a result, what it actually competes with is the LLVM toolchain, on which a large number of other programming languages rely extensively.</p><h2 id=architecture>Architecture</h2><p><img src=/post-images/wisnialang-architecture.png alt=architecture></p><h3 id=programming-languages-that-depend-on-llvm>Programming languages that depend on LLVM</h3><p>Before going further, let me get straight to the point:</p><ol><li>Writing compilers is easy</li><li>Optimizing the machine code is hard</li><li>Supporting arbitrary architectures / operating systems is hard</li></ol><p><img src=/post-images/llvm-approach.png alt=llvm-approach></p><p>This is where LLVM comes in handy. LLVM uses an intermediate representation language, which is kind of similar to assembly, but with a few higher level constructs. LLVM is good at optimizing this IR language, as well as compiling into different architecture / binary formats. So as a language author using LLVM, I&rsquo;m really writing a transpiler from my language -> LLVM IR, and letting the LLVM compiler do the hard work.</p><center><img src=/post-images/wisnialang-approach.png></center><br><p>Even though it is an amateurish project, <a href=https://github.com/belijzajac/WisniaLang>WisniaLang</a> takes a more traditional approach to compiler design. It goes through all of the same front-end procedures as other LLVM-based programming languages, but it handles register allocation, machine code generation, and ELF binary format construction on its own.</p><h2 id=example-programs>Example programs</h2><p>Let&rsquo;s take a look at simple programs and see how a handwritten compiler compares to Rust, an LLVM-based programming language. Both compilers generate the identical number sequence, <code>3000 2997 ... 6 3 1</code>, for both programs.</p><table><tr><th>WisniaLang</th><th>Rust</th></tr><tr><td><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-rust data-lang=rust><span style=display:flex><span><span style=color:#ff79c6>fn</span> <span style=color:#50fa7b>foo</span>(base: <span style=color:#50fa7b>int</span>, number: <span style=color:#50fa7b>int</span>) -&gt; <span style=color:#50fa7b>void</span> {          
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>if</span> (number) {
+</span></span><span style=display:flex><span>    print(base <span style=color:#ff79c6>*</span> number, <span style=color:#f1fa8c>&#34; &#34;</span>);
+</span></span><span style=display:flex><span>    foo(base, number <span style=color:#ff79c6>-</span> <span style=color:#bd93f9>1</span>);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>fn</span> <span style=color:#50fa7b>main</span>() -&gt; <span style=color:#50fa7b>void</span> {
+</span></span><span style=display:flex><span>  foo(<span style=color:#bd93f9>3</span>, <span style=color:#bd93f9>1000</span>);
+</span></span><span style=display:flex><span>  print(<span style=color:#f1fa8c>&#34;1\n&#34;</span>);
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div></td><td><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-rust data-lang=rust><span style=display:flex><span><span style=color:#ff79c6>fn</span> <span style=color:#50fa7b>foo</span>(base: <span style=color:#8be9fd>u16</span>, number: <span style=color:#8be9fd>u16</span>) {                    
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>if</span> number <span style=color:#ff79c6>&gt;</span> <span style=color:#bd93f9>0</span> {
+</span></span><span style=display:flex><span>    print!(<span style=color:#f1fa8c>&#34;{} &#34;</span>, base <span style=color:#ff79c6>*</span> number);
+</span></span><span style=display:flex><span>    foo(base, number <span style=color:#ff79c6>-</span> <span style=color:#bd93f9>1</span>);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>fn</span> <span style=color:#50fa7b>main</span>() {
+</span></span><span style=display:flex><span>  foo(<span style=color:#bd93f9>3</span>, <span style=color:#bd93f9>1000</span>);
+</span></span><span style=display:flex><span>  print!(<span style=color:#f1fa8c>&#34;1\n&#34;</span>);
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div></td></tr></table><h2 id=a-dive-deeper>A dive deeper</h2><p>Let us now compare the final size of the produced binary files and the time it took to assemble them. <strong>TLDR</strong>: If you wish to skip the lenghty blabberings and view the results as a graphic representation, scroll to the bottom of the page.</p><h3 id=wisnialang>WisniaLang</h3><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>┌─<span style=color:#ff79c6>[</span>tautvydas<span style=color:#ff79c6>][</span>kagamin<span style=color:#ff79c6>][</span>~/tests<span style=color:#ff79c6>]</span>
+</span></span><span style=display:flex><span>└─▪ <span style=color:#8be9fd;font-style:italic>time</span> ./wisnia test.wsn
+</span></span><span style=display:flex><span>real    0m0.005s
+</span></span><span style=display:flex><span>user    0m0.003s
+</span></span><span style=display:flex><span>sys     0m0.002s
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>┌─<span style=color:#ff79c6>[</span>tautvydas<span style=color:#ff79c6>][</span>kagamin<span style=color:#ff79c6>][</span>~/tests<span style=color:#ff79c6>]</span>
+</span></span><span style=display:flex><span>└─▪ ls -lh a.out 
+</span></span><span style=display:flex><span>-rwxrwxrwx <span style=color:#bd93f9>1</span> tautvydas tautvydas <span style=color:#bd93f9>549</span> Nov <span style=color:#bd93f9>13</span> 15:25 a.out
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>┌─<span style=color:#ff79c6>[</span>tautvydas<span style=color:#ff79c6>][</span>kagamin<span style=color:#ff79c6>][</span>~/tests<span style=color:#ff79c6>]</span>
+</span></span><span style=display:flex><span>└─▪ <span style=color:#8be9fd;font-style:italic>time</span> ./a.out
+</span></span><span style=display:flex><span><span style=color:#bd93f9>3000</span> <span style=color:#bd93f9>2997</span> <span style=color:#bd93f9>2994</span> <span style=color:#bd93f9>2991</span> <span style=color:#ff79c6>(</span>omitted by the author<span style=color:#ff79c6>)</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>real    0m0.007s
+</span></span><span style=display:flex><span>user    0m0.000s
+</span></span><span style=display:flex><span>sys     0m0.007s
+</span></span></code></pre></div><p>The example program was compiled into a <code>549</code>-byte binary file in just <code>5</code> milliseconds by our compiler, which took <code>7</code> milliseconds to run.</p><h3 id=rust>Rust</h3><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>┌─<span style=color:#ff79c6>[</span>tautvydas<span style=color:#ff79c6>][</span>kagamin<span style=color:#ff79c6>][</span>~/tests<span style=color:#ff79c6>]</span>
+</span></span><span style=display:flex><span>└─▪ rustc --version
+</span></span><span style=display:flex><span>rustc 1.65.0 <span style=color:#ff79c6>(</span>897e37553 2022-11-02<span style=color:#ff79c6>)</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>┌─<span style=color:#ff79c6>[</span>tautvydas<span style=color:#ff79c6>][</span>kagamin<span style=color:#ff79c6>][</span>~/tests<span style=color:#ff79c6>]</span>
+</span></span><span style=display:flex><span>└─▪ <span style=color:#8be9fd;font-style:italic>time</span> rustc test.rs 
+</span></span><span style=display:flex><span>real    0m0.167s
+</span></span><span style=display:flex><span>user    0m0.131s
+</span></span><span style=display:flex><span>sys     0m0.042s
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>┌─<span style=color:#ff79c6>[</span>tautvydas<span style=color:#ff79c6>][</span>kagamin<span style=color:#ff79c6>][</span>~/tests<span style=color:#ff79c6>]</span>
+</span></span><span style=display:flex><span>└─▪ ls -lh <span style=color:#8be9fd;font-style:italic>test</span>
+</span></span><span style=display:flex><span>-rwxr-xr-x <span style=color:#bd93f9>1</span> tautvydas tautvydas 3.9M Nov <span style=color:#bd93f9>13</span> 15:26 <span style=color:#8be9fd;font-style:italic>test</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>┌─<span style=color:#ff79c6>[</span>tautvydas<span style=color:#ff79c6>][</span>kagamin<span style=color:#ff79c6>][</span>~/tests<span style=color:#ff79c6>]</span>
+</span></span><span style=display:flex><span>└─▪ strip <span style=color:#8be9fd;font-style:italic>test</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>┌─<span style=color:#ff79c6>[</span>tautvydas<span style=color:#ff79c6>][</span>kagamin<span style=color:#ff79c6>][</span>~/tests<span style=color:#ff79c6>]</span>
+</span></span><span style=display:flex><span>└─▪ ls -lh <span style=color:#8be9fd;font-style:italic>test</span>
+</span></span><span style=display:flex><span>-rwxr-xr-x <span style=color:#bd93f9>1</span> tautvydas tautvydas 319K Nov <span style=color:#bd93f9>13</span> 15:26 <span style=color:#8be9fd;font-style:italic>test</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>┌─<span style=color:#ff79c6>[</span>tautvydas<span style=color:#ff79c6>][</span>kagamin<span style=color:#ff79c6>][</span>~/tests<span style=color:#ff79c6>]</span>
+</span></span><span style=display:flex><span>└─▪ <span style=color:#8be9fd;font-style:italic>time</span> ./test 
+</span></span><span style=display:flex><span><span style=color:#bd93f9>3000</span> <span style=color:#bd93f9>2997</span> <span style=color:#bd93f9>2994</span> <span style=color:#bd93f9>2991</span> <span style=color:#ff79c6>(</span>omitted by the author<span style=color:#ff79c6>)</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>real    0m0.003s
+</span></span><span style=display:flex><span>user    0m0.000s
+</span></span><span style=display:flex><span>sys     0m0.003s
+</span></span></code></pre></div><p>Rust, on the other hand, took <code>167</code> milliseconds to compile the program, which weighted <code>3.9</code> megabytes. After removing the symbols from the binary file, the program now weighs <code>319</code> kilobytes, putting it considerably behind WisniaLang. The compiled program took <code>3</code> milliseconds to run.</p><h3 id=rust-optimized-for-size--libc>Rust (optimized for size + libc)</h3><p>This would necessitate a revision of the previously mentioned sample program to utilize <code>libc</code> rather than the standard library (<code>std::*</code>). The <code>Cargo.toml</code> file is provided below, along with a revised example program.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text><span style=display:flex><span>[package]
+</span></span><span style=display:flex><span>name = &#34;optimized-size&#34;
+</span></span><span style=display:flex><span>version = &#34;0.1.0&#34;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>[profile.release]
+</span></span><span style=display:flex><span>panic = &#34;abort&#34;
+</span></span><span style=display:flex><span>lto = true
+</span></span><span style=display:flex><span>strip = true
+</span></span><span style=display:flex><span>codegen-units = 1
+</span></span><span style=display:flex><span>incremental = false
+</span></span><span style=display:flex><span>opt-level = &#34;z&#34;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>[dependencies]
+</span></span><span style=display:flex><span>libc = { version = &#34;0.2&#34;, default-features = false }
+</span></span></code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-rust data-lang=rust><span style=display:flex><span><span style=color:#ff79c6>#![no_std]</span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>#![no_main]</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>extern</span> <span style=color:#ff79c6>crate</span> libc;
+</span></span><span style=display:flex><span><span style=color:#ff79c6>use</span> libc::c_uint;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>fn</span> <span style=color:#50fa7b>foo</span>(base: <span style=color:#8be9fd>u16</span>, number: <span style=color:#8be9fd>u16</span>) {
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>if</span> number <span style=color:#ff79c6>&gt;</span> <span style=color:#bd93f9>0</span> {
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>unsafe</span> { libc::printf(<span style=color:#f1fa8c>&#34;%u \0&#34;</span>.as_ptr() <span style=color:#ff79c6>as</span> <span style=color:#ff79c6>*</span><span style=color:#ff79c6>const</span> libc::c_char, (base <span style=color:#ff79c6>*</span> number) <span style=color:#ff79c6>as</span> c_uint); }
+</span></span><span style=display:flex><span>    foo(base, number <span style=color:#ff79c6>-</span> <span style=color:#bd93f9>1</span>);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>#[no_mangle]</span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>pub</span> <span style=color:#ff79c6>extern</span> <span style=color:#f1fa8c>&#34;C&#34;</span> <span style=color:#ff79c6>fn</span> <span style=color:#50fa7b>main</span>() {
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>unsafe</span> {
+</span></span><span style=display:flex><span>    foo(<span style=color:#bd93f9>3</span>, <span style=color:#bd93f9>1000</span>);
+</span></span><span style=display:flex><span>    libc::printf(<span style=color:#f1fa8c>&#34;1\n&#34;</span>.as_ptr() <span style=color:#ff79c6>as</span> <span style=color:#ff79c6>*</span><span style=color:#ff79c6>const</span> libc::c_char);
+</span></span><span style=display:flex><span>    libc::exit(<span style=color:#bd93f9>0</span>)
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>#[panic_handler]</span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>fn</span> <span style=color:#50fa7b>my_panic</span>(_info: <span style=color:#ff79c6>&amp;</span><span style=color:#50fa7b>core</span>::panic::PanicInfo) -&gt; <span style=color:#ff79c6>!</span> {
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>loop</span> {}
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>Let&rsquo;s see how well it performs now, excluding the compilation of <code>libc</code>.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>┌─<span style=color:#ff79c6>[</span>tautvydas<span style=color:#ff79c6>][</span>kagamin<span style=color:#ff79c6>][</span>~/tests/rust-optim-size<span style=color:#ff79c6>]</span>
+</span></span><span style=display:flex><span>└─▪ <span style=color:#8be9fd;font-style:italic>time</span> cargo build --release
+</span></span><span style=display:flex><span>   Compiling optimized-size v0.1.0 <span style=color:#ff79c6>(</span>~/tests/rust-optim-size<span style=color:#ff79c6>)</span>
+</span></span><span style=display:flex><span>    Finished release <span style=color:#ff79c6>[</span>optimized<span style=color:#ff79c6>]</span> target<span style=color:#ff79c6>(</span>s<span style=color:#ff79c6>)</span> in 0.17s
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>real    0m0.222s
+</span></span><span style=display:flex><span>user    0m0.188s
+</span></span><span style=display:flex><span>sys     0m0.034s
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>┌─<span style=color:#ff79c6>[</span>tautvydas<span style=color:#ff79c6>][</span>kagamin<span style=color:#ff79c6>][</span>~/tests/rust-optim-size<span style=color:#ff79c6>]</span>
+</span></span><span style=display:flex><span>└─▪ ls -lh target/release/optimized-size
+</span></span><span style=display:flex><span>-rwxr-xr-x <span style=color:#bd93f9>2</span> tautvydas tautvydas 14K Nov <span style=color:#bd93f9>13</span> 15:27 target/release/optimized-size
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>┌─<span style=color:#ff79c6>[</span>tautvydas<span style=color:#ff79c6>][</span>kagamin<span style=color:#ff79c6>][</span>~/tests/rust-optim-size<span style=color:#ff79c6>]</span>
+</span></span><span style=display:flex><span>└─▪ <span style=color:#8be9fd;font-style:italic>time</span> ./target/release/optimized-size 
+</span></span><span style=display:flex><span><span style=color:#bd93f9>3000</span> <span style=color:#bd93f9>2997</span> <span style=color:#bd93f9>2994</span> <span style=color:#bd93f9>2991</span> <span style=color:#ff79c6>(</span>omitted by the author<span style=color:#ff79c6>)</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>real    0m0.002s
+</span></span><span style=display:flex><span>user    0m0.000s
+</span></span><span style=display:flex><span>sys     0m0.002s
+</span></span></code></pre></div><p>Rust took <code>222</code> milliseconds to assemble a binary file weighing <code>14</code> kilobytes, which took <code>2</code> milliseconds to run.</p><h3 id=rust-optimized-for-speed--libc>Rust (optimized for speed + libc)</h3><p>Same <code>Cargo.toml</code> file as before, but with <code>opt-level</code> set to <code>3</code>.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>┌─<span style=color:#ff79c6>[</span>tautvydas<span style=color:#ff79c6>][</span>kagamin<span style=color:#ff79c6>][</span>~/tests/rust-optim-speed<span style=color:#ff79c6>]</span>
+</span></span><span style=display:flex><span>└─▪ <span style=color:#8be9fd;font-style:italic>time</span> cargo build --release
+</span></span><span style=display:flex><span>   Compiling optimized-speed v0.1.0 <span style=color:#ff79c6>(</span>~/tests/rust-optim-speed<span style=color:#ff79c6>)</span>
+</span></span><span style=display:flex><span>    Finished release <span style=color:#ff79c6>[</span>optimized<span style=color:#ff79c6>]</span> target<span style=color:#ff79c6>(</span>s<span style=color:#ff79c6>)</span> in 0.17s
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>real    0m0.226s
+</span></span><span style=display:flex><span>user    0m0.187s
+</span></span><span style=display:flex><span>sys     0m0.039
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>┌─<span style=color:#ff79c6>[</span>tautvydas<span style=color:#ff79c6>][</span>kagamin<span style=color:#ff79c6>][</span>~/tests/rust-optim-speed<span style=color:#ff79c6>]</span>
+</span></span><span style=display:flex><span>└─▪ ls -lh target/release/optimized-speed
+</span></span><span style=display:flex><span>-rwxr-xr-x <span style=color:#bd93f9>2</span> tautvydas tautvydas 14K Nov <span style=color:#bd93f9>13</span> 15:28 target/release/optimized-speed
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>┌─<span style=color:#ff79c6>[</span>tautvydas<span style=color:#ff79c6>][</span>kagamin<span style=color:#ff79c6>][</span>~/tests/rust-optim-speed<span style=color:#ff79c6>]</span>
+</span></span><span style=display:flex><span>└─▪ <span style=color:#8be9fd;font-style:italic>time</span> ./target/release/optimized-speed
+</span></span><span style=display:flex><span><span style=color:#bd93f9>3000</span> <span style=color:#bd93f9>2997</span> <span style=color:#bd93f9>2994</span> <span style=color:#bd93f9>2991</span> <span style=color:#ff79c6>(</span>omitted by the author<span style=color:#ff79c6>)</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>real    0m0.002s
+</span></span><span style=display:flex><span>user    0m0.000s
+</span></span><span style=display:flex><span>sys     0m0.002s
+</span></span></code></pre></div><p>This time, Rust took <code>226</code> milliseconds to assemble a binary file weighing <code>14</code> kilobytes, which took <code>2</code> milliseconds to run.</p><h2 id=results>Results</h2><p><img src=/post-images/wisnialang-vs-rust.png alt=wisnialang-vs-rust></p><h2 id=summary>Summary</h2><ul><li>If compilation speed and binary file size are important, dropping the LLVM toolchain can have a positive impact</li><li>However, doing so means missing out on LLVM optimizations as well as support for arbitrary OSes and architectures</li></ul><div class=separator></div><br><div class=media><div class=media-left><img src=https://belijzajac.dev/author.jpg alt=selfie class="mr-3 mt-3 rounded-circle" style="border:2px solid #ddd;border-radius:50%"></div><div class=media-body><h4 class=media-heading>The author behind this post</h4>I'm a software developer with a diverse set of interests that include, but are not limited to, bare-metal assembly, Linux, and modern C++20. Since I was a kid, I've been using Linux (since that's what my toaster laptop could handle back in 2010), spreading FUD botnets, performing SQL injections on local WordPress websites, and more. I'm willing to collaborate on projects and can be reached at<div class=email>$ echo Z2l0aHViQGJlbGlqemFqYWMuZGV2Cg== | base64 -d</div></div></div></article><script type=application/javascript>countDownDate=new Date("2021-12-23");var x=setInterval(function(){var t=(new Date).getTime(),e=t-countDownDate.getTime(),n=Math.floor(e/(1e3*60*60*24)),s=Math.floor(e%(1e3*60*60*24)/(1e3*60*60)),o=Math.floor(e%(1e3*60*60)/(1e3*60)),i=Math.floor(e%(1e3*60)/1e3);document.getElementById("demo").innerHTML=n+"d "+s+"h "+o+"m "+i+"s "},1e3)</script><footer class=footer><span>Blog is running for <tag id=demo></tag><p>Copyright © 2022
+<a href=https://github.com/belijzajac target=_blank rel=noopener>belijzajac</a></span></footer></div><script>window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)},ga.l=+new Date,ga("create","UA-217331412-1","auto"),ga("send","pageview")</script><script async src=https://www.google-analytics.com/analytics.js></script></body></html>
