@@ -76,7 +76,7 @@ fn main() {
 
 ## A dive deeper
 
-Let us now compare the final size of the produced binary files and the time it took to assemble them. **TLDR**: If you wish to skip the lenghty blabberings and view the results as a graphic representation, scroll to the bottom of the page.
+Let us now compare the final size of the produced binaries, as well as the time it took to assemble and run them.  **TLDR**: If you wish to skip the lenghty blabberings and view the results as a graphic representation, scroll to the bottom of the page.
 
 ### WisniaLang
 
@@ -187,7 +187,7 @@ fn my_panic(_info: &core::panic::PanicInfo) -> ! {
 }
 ```
 
-Let's see how well it performs now, excluding the compilation of `libc`.
+Let's see how well it performs now, excluding the time it took to compile `libc`.
 
 ```bash
 ┌─[tautvydas][kagamin][~/tests/rust-optim-size]
