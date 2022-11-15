@@ -43,14 +43,14 @@ Let's take a look at simple programs and see how a handwritten compiler compares
 <tr><td>
 
 ```rust
-fn foo(base: int, number: int) -> void {          
+fn foo(base: int, number: int) {                    
   if (number) {
     print(base * number, " ");
     foo(base, number - 1);
   }
 }
 
-fn main() -> void {
+fn main() {
   foo(3, 1000);
   print("1\n");
 }
