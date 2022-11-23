@@ -2,7 +2,7 @@
 title: "WisniaLang: Compiler Project"
 date: 2022-10-17T20:55:19-05:00
 publishdate: 2022-10-17
-lastmod: 2022-11-13
+lastmod: 2022-11-23
 draft: false
 tags: ["c++", "elf", "compiler", "llvm", "rust"]
 ---
