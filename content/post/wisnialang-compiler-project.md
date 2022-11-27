@@ -2,7 +2,7 @@
 title: "WisniaLang: Compiler Project"
 date: 2022-10-17T20:55:19-05:00
 publishdate: 2022-10-17
-lastmod: 2022-11-23
+lastmod: 2022-11-27
 draft: false
 tags: ["c++", "elf", "compiler", "llvm", "rust"]
 ---
@@ -83,24 +83,24 @@ Let us now compare the final size of the produced binaries, as well as the time 
 ```bash
 ┌─[tautvydas][kagamin][~/tests]
 └─▪ time ./wisnia test.wsn
-real    0m0.005s
-user    0m0.003s
-sys     0m0.002s
+real    0m0.004s
+user    0m0.002s
+sys     0m0.001s
 
 ┌─[tautvydas][kagamin][~/tests]
-└─▪ ls -lh a.out 
--rwxrwxrwx 1 tautvydas tautvydas 549 Nov 13 15:25 a.out
+└─▪ ls -lh a.out
+-rwxrwxrwx 1 tautvydas tautvydas 528 Nov 27 17:20 a.out
 
 ┌─[tautvydas][kagamin][~/tests]
 └─▪ time ./a.out
 3000 2997 2994 2991 (omitted by the author)
 
-real    0m0.007s
+real    0m0.004s
 user    0m0.000s
-sys     0m0.007s
+sys     0m0.004s
 ```
 
-The example program was compiled into a `549`-byte binary file in just `5` milliseconds by our compiler, which took `7` milliseconds to run.
+The example program was compiled into a `528`-byte binary file in just `4` milliseconds by our compiler, which took `4` milliseconds to run.
 
 ### Rust
 
