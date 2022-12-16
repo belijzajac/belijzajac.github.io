@@ -11,9 +11,8 @@ theme = "minimal-bootstrap-hugo-theme"
 
 [params]
   description = "belijzajac's personal blog, where he shows off some of his current, past, and future projects as well as shares personal experience of developing projects involving modern C++ and Linux!"
-  aboutAuthor = "I'm a software developer with a diverse set of interests that include, but are not limited to, bare-metal assembly, Linux, and modern C++20. Since I was a kid, I've been using Linux (since that's what my toaster laptop could handle back in 2010), spreading FUD botnets, performing SQL injections on local WordPress websites, and more. I'm willing to collaborate on projects and can be reached at"
+  aboutAuthor = "Hi there! My online handle on GitHub is belijzajac, which is a Russian translation of \"white hare\". I am a software developer with a strong passion for C++20, Linux, and bare-metal assembly. With a solid foundation in these technologies, I am always looking for new ways to challenge myself and grow as a developer. In my free time, you can find me tinkering with new technologies and keeping up to date with the latest industry trends. Thank you for visiting my blog!"
   selfieAuthor = "author.jpg"
-  emailAuthor = "$ echo Z2l0aHViQGJlbGlqemFqYWMuZGV2Cg== | base64 -d"
   contentBackgroundTexture = "/white-leather-texture-1945.png"
   contentBackgroundColor = "#fff"
   contentTextColor = "#212529"
