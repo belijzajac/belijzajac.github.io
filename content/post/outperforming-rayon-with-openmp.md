@@ -145,7 +145,7 @@ That's **twice as fast** with as little effort as putting in a few pragmas!
 
 The `fft_g1` benchmark was limited to scale 7 because the overall run time for the job exceeds the 6 hour limit if I were to benchmark it  up to scale 16, as Criterion runs each iteration a couple of hundred times to produce more accurate results, and that used to automatically cancel other running tasks as jobs submitted to GitHub Actions have a limit of 360 minutes.
 
-### 1. blst-from-scratch benchmark
+### blst-from-scratch benchmark
 
 ![from-scratch-github-actions](/post-images/from-scratch-github-actions.png)
 
@@ -171,7 +171,7 @@ bench_fft_g1 scale: '7' time:   [20.432 ms 20.634 ms 20.843 ms]
                         Performance has improved.
 ```
 
-### 2. ckzg benchmark
+### ckzg benchmark
 
 ![ckzg-github-actions](/post-images/ckzg-github-actions.png)
 

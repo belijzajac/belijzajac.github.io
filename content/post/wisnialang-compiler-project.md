@@ -17,7 +17,7 @@ For the past 3 years, I have been working on a [compiler](https://github.com/bel
 
 ![architecture](/post-images/wisnialang-architecture.png)
 
-### Programming languages that depend on LLVM
+## Programming languages and LLVM
 
 Before going further, let me get straight to the point:
 
