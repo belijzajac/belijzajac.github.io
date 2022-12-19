@@ -21,7 +21,35 @@ It's kind of obvious for Rust programmers to pick `Rayon` out of the box because
 * Some random guy's threadpool library from GitHub with the most stars
 * `OpenMP`
 
-I picked `OpenMP` because while experimenting, I found it to produce the best results, and it was a no-brainer to use except for coming up with how to seemingly integrate it with Rust so that it would work on multiple platforms. In the end, I came up with a simple Bash script to automate the whole building and packaging of shared libraries, and, luckily enough, OpenMP was easily integrated into Rust by either exporting the `RUSTFLAGS` environment variable pointing to the correct `libomp` LLVM runtime or creating a `.cargo/config.toml` file inside the project and mentioning it there. Simple!
+I picked `OpenMP` because, while experimenting, I found it to produce the best results, and it was a no-brainer to use except for coming up with how to seemingly integrate it with Rust so that it would work on multiple platforms. In the end, I came up with a simple Bash script to automate the whole building and packaging of shared libraries, and, luckily enough, OpenMP was easily integrated into Rust by either:
+
+* exporting the `RUSTFLAGS` environment variable pointing to the correct `libomp` LLVM runtime
+
+```bash
+# Linux
+apt install libomp-dev
+export LIBOMP_PATH=$(find /usr/lib/llvm* -name libiomp5.so | head -n 1)
+
+# MacOS
+brew install libomp
+ln -s /usr/local/opt/libomp/lib/libomp.dylib /usr/local/lib
+ln -s /usr/local/opt/libomp/include/omp.h /usr/local/include
+export LIBOMP_PATH=/usr/local/lib/libomp.dylib
+
+# And finally
+export RUSTFLAGS="-C link-arg=$LIBOMP_PATH"
+```
+
+* or creating a `.cargo/config.toml` file inside the project directory and mentioning it there
+
+```text
+[build]
+rustflags = [
+  "-C", "link-arg=PATH_TO_LIBOMP_SO_OR_DYLIB"
+]
+```
+
+Simple!
 
 ## Searching for bottlenecks
 
@@ -145,7 +173,7 @@ That's **twice as fast** with as little effort as putting in a few pragmas!
 
 The `fft_g1` benchmark was limited to scale 7 because the overall run time for the job exceeds the 6 hour limit if I were to benchmark it  up to scale 16, as Criterion runs each iteration a couple of hundred times to produce more accurate results, and that used to automatically cancel other running tasks as jobs submitted to GitHub Actions have a limit of 360 minutes.
 
-### blst-from-scratch benchmark
+### Benchmarking blst-from-scratch
 
 ![from-scratch-github-actions](/post-images/from-scratch-github-actions.png)
 
@@ -171,7 +199,7 @@ bench_fft_g1 scale: '7' time:   [20.432 ms 20.634 ms 20.843 ms]
                         Performance has improved.
 ```
 
-### ckzg benchmark
+### Benchmarking ckzg
 
 ![ckzg-github-actions](/post-images/ckzg-github-actions.png)
 
