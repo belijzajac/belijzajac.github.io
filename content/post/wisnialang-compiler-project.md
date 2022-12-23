@@ -11,11 +11,15 @@ tags: ["c++", "elf", "compiler", "llvm", "rust"]
 
 ## Introduction
 
-For the past 3 years, I have been working on a [compiler](https://github.com/belijzajac/WisniaLang) for an experimental programming language that compiles to native machine code. It focuses on delivering tiny Linux binaries (ELF x86_64) with no LLVM dependency. As a result, what it actually competes with is the LLVM toolchain, on which a large number of other programming languages rely extensively.
+For the past 3 years, I have been working on a [compiler](https://github.com/belijzajac/WisniaLang) for an experimental programming language that compiles to native machine code. It focuses on delivering tiny Linux binaries (`ELF` `x86_64`) with no LLVM dependency. As a result, what it actually competes with is the LLVM toolchain, on which a large number of other programming languages rely extensively.
+
+The reason for focusing on the delivery of small binaries with no LLVM dependency is to offer an alternative to the LLVM toolchain. While LLVM is a powerful and widely-used toolchain, it can be quite resource-intensive and may not be suitable for all scenarios. By offering a compiler that can produce efficient machine code without the need for LLVM, my aim is to provide a more lightweight and flexible solution for those who need it.
 
 ## Architecture
 
 ![architecture](/post-images/wisnialang-architecture.png)
+
+The architecture of the compiler consists of several main phases, which work together to perform this translation. These phases include lexical analysis, which breaks the source code down into smaller units called tokens; syntactic analysis, which builds a representation of the structure of the source code called an abstract syntax tree (AST); semantic analysis, which checks the AST for semantic errors and performs type checking; intermediate representation (IR), which represents the code in a lower-level form that is easier for the compiler to work with; code generation, which generates machine code from the IR; optimization, which improves the performance of the machine code; and linking, which combines the machine code to create a complete executable program in ELF (Executable and Linking Format) format.
 
 ## Programming languages and LLVM
 
@@ -32,7 +36,7 @@ This is where LLVM comes in handy. LLVM uses an intermediate representation lang
 <center><img src="/post-images/wisnialang-approach.png"></center>
 <br>
 
-Even though it is an amateurish project, [WisniaLang](https://github.com/belijzajac/WisniaLang) takes a more traditional approach to compiler design. It goes through all of the same front-end procedures as other LLVM-based programming languages, but it handles register allocation, machine code generation, and ELF binary format construction on its own.
+WisniaLang is an amateurish project that takes a more traditional approach to compiler design compared to other LLVM-based programming languages. Despite its amateur status, WisniaLang still follows the same front-end procedures as other programming languages in the LLVM family. However, it differs in the way it handles certain tasks, such as register allocation, machine code generation, and ELF binary format construction. Instead of relying on LLVM or other external tools for these tasks, WisniaLang handles them on its own. This approach allows WisniaLang to have more control over the compilation process, but it also requires more work and expertise on the part of its developers.
 
 ## Example programs
 
@@ -246,6 +250,10 @@ This time, Rust took `226` milliseconds to assemble a binary file weighing `14` 
 ## Results
 
 ![wisnialang-vs-rust](/post-images/wisnialang-vs-rust.png)
+
+WisniaLang compiled a binary in just 4 milliseconds, while Rust took 167 milliseconds, Rust optimized for size took 222 milliseconds, and Rust optimized for speed took 226 milliseconds, respectively. WisniaLang also produced the smallest binary at 0.515 KiB, while the Rust binary was 319 KiB, and the optimized Rust binaries were both 14 KiB. In terms of runtime speed, the WisniaLang binary ran for 4 milliseconds, while the Rust binary ran for 3 milliseconds, and the optimized Rust binaries both ran for 2 milliseconds.
+
+<mark>WisniaLang excels in the first two benchmark categories (compilation time and produced binary size), but falls short in the third category (speed of the binary), which remains an area for improvement.</mark>
 
 ## Summary
 
