@@ -2,7 +2,7 @@
 title: "WisniaLang: Compiler Project"
 date: 2022-10-17T20:55:19-05:00
 publishdate: 2022-10-17
-lastmod: 2022-11-27
+lastmod: 2022-12-27
 draft: false
 tags: ["c++", "elf", "compiler", "llvm", "rust"]
 ---
@@ -78,9 +78,28 @@ fn main() {
 
 </td></tr> </table>
 
+Since I was asked to include C in the benchmark, as it has been a standard for performance for almost half a century and it is something that every benchmark of a language attempting to surpass it should include, here is an example program in C:
+
+```c
+#include <stdint.h>
+#include <stdio.h>
+
+void foo(uint16_t base, uint16_t number) {
+  if (number) {
+    printf("%u ", base * number);
+    foo(base, number - 1);
+  }
+}
+
+int main() {
+  foo(3, 1000);
+  printf("1\n");
+}
+```
+
 ## A dive deeper
 
-Let us now compare the final size of the produced binaries, as well as the time it took to assemble and run them.  **TLDR**: If you wish to skip the lenghty blabberings and view the results as a graphic representation, scroll to the bottom of the page.
+Let us now compare the final size of the produced binaries, as well as the time it took to assemble and run them.  <mark>TLDR: If you wish to skip the lenghty blabberings and view the results as a graphic representation, scroll to the bottom of the page.</mark>
 
 ### WisniaLang
 
@@ -93,7 +112,7 @@ sys     0m0.001s
 
 ┌─[tautvydas][kagamin][~/tests]
 └─▪ ls -lh a.out
--rwxrwxrwx 1 tautvydas tautvydas 528 Nov 27 17:20 a.out
+-rwxrwxrwx 1 tautvydas tautvydas 528 Dec 27 17:20 a.out
 
 ┌─[tautvydas][kagamin][~/tests]
 └─▪ time ./a.out
@@ -104,7 +123,95 @@ user    0m0.000s
 sys     0m0.004s
 ```
 
-The example program was compiled into a `528`-byte binary file in just `4` milliseconds by our compiler, which took `4` milliseconds to run.
+Running 20 times, the results averaged out to:
+
+* Compilation time: `3.3 ms`
+* Size of the binary: `0.515 KiB`
+* Runtime speed: `4.25 ms`
+
+### C
+
+```bash
+┌─[tautvydas][kagamin][~/tests]
+└─▪ time gcc test.c
+real    0m0.040s
+user    0m0.025s
+sys     0m0.015s
+
+┌─[tautvydas][kagamin][~/tests]
+└─▪ ls -lh a.out
+-rwxr-xr-x 1 tautvydas tautvydas 16K Dec 27 12:39 a.out
+
+┌─[tautvydas][kagamin][~/tests]
+└─▪ time ./a.out
+3000 2997 2994 2991 (omitted by the author)
+
+real    0m0.002s
+user    0m0.001s
+sys     0m0.001s
+```
+
+Running 20 times, the results averaged out to:
+
+* Compilation time: `38.05 ms`
+* Size of the binary: `16 KiB`
+* Runtime speed: `1.6 ms`
+
+### C (optimized for size)
+
+```bash
+┌─[tautvydas][kagamin][~/tests]
+└─▪ time gcc -Os -s test.c
+real    0m0.045s
+user    0m0.028s
+sys     0m0.017s
+
+┌─[tautvydas][kagamin][~/tests]
+└─▪ ls -lh a.out
+-rwxr-xr-x 1 tautvydas tautvydas 15K Dec 27 12:41 a.out
+
+┌─[tautvydas][kagamin][~/tests]
+└─▪ time ./a.out
+3000 2997 2994 2991 (omitted by the author)
+
+real    0m0.002s
+user    0m0.002s
+sys     0m0.000s
+```
+
+Running 20 times, the results averaged out to:
+
+* Compilation time: `42.15 ms`
+* Size of the binary: `15 KiB`
+* Runtime speed: `1.7 ms`
+
+### C (optimized for speed)
+
+```bash
+┌─[tautvydas][kagamin][~/tests]
+└─▪ time gcc -O3 -s test.c
+real    0m0.046s
+user    0m0.033s
+sys     0m0.012s
+
+┌─[tautvydas][kagamin][~/tests]
+└─▪ ls -lh a.out
+-rwxr-xr-x 1 tautvydas tautvydas 15K Dec 27 12:42 a.out
+
+┌─[tautvydas][kagamin][~/tests]
+└─▪ time ./a.out
+3000 2997 2994 2991 (omitted by the author)
+
+real    0m0.002s
+user    0m0.000s
+sys     0m0.002s
+```
+
+Running 20 times, the results averaged out to:
+
+* Compilation time: `47.75 ms`
+* Size of the binary: `15 KiB`
+* Runtime speed: `1.6 ms`
 
 ### Rust
 
@@ -121,14 +228,14 @@ sys     0m0.042s
 
 ┌─[tautvydas][kagamin][~/tests]
 └─▪ ls -lh test
--rwxr-xr-x 1 tautvydas tautvydas 3.9M Nov 13 15:26 test
+-rwxr-xr-x 1 tautvydas tautvydas 3.9M Dec 27 15:26 test
 
 ┌─[tautvydas][kagamin][~/tests]
 └─▪ strip test
 
 ┌─[tautvydas][kagamin][~/tests]
 └─▪ ls -lh test
--rwxr-xr-x 1 tautvydas tautvydas 319K Nov 13 15:26 test
+-rwxr-xr-x 1 tautvydas tautvydas 319K Dec 27 15:26 test
 
 ┌─[tautvydas][kagamin][~/tests]
 └─▪ time ./test 
@@ -139,7 +246,13 @@ user    0m0.000s
 sys     0m0.003s
 ```
 
-Rust, on the other hand, took `167` milliseconds to compile the program, which weighted `3.9` megabytes. After removing the symbols from the binary file, the program now weighs `319` kilobytes, putting it considerably behind WisniaLang. The compiled program took `3` milliseconds to run.
+At first, Rust took `167` milliseconds to compile the program, which weighted `3.9` megabytes. After removing the symbols from the binary file, the program now weighs `319` kilobytes, putting it considerably behind WisniaLang.
+
+Running 20 times, the results averaged out to:
+
+* Compilation time: `156.2 ms`
+* Size of the binary: `319 KiB`
+* Runtime speed: `2.15 ms`
 
 ### Rust (optimized for size + libc)
 
@@ -205,7 +318,7 @@ sys     0m0.034s
 
 ┌─[tautvydas][kagamin][~/tests/rust-optim-size]
 └─▪ ls -lh target/release/optimized-size
--rwxr-xr-x 2 tautvydas tautvydas 14K Nov 13 15:27 target/release/optimized-size
+-rwxr-xr-x 2 tautvydas tautvydas 14K Dec 27 15:27 target/release/optimized-size
 
 ┌─[tautvydas][kagamin][~/tests/rust-optim-size]
 └─▪ time ./target/release/optimized-size 
@@ -216,7 +329,11 @@ user    0m0.000s
 sys     0m0.002s
 ```
 
-Rust took `222` milliseconds to assemble a binary file weighing `14` kilobytes, which took `2` milliseconds to run. 
+Running 20 times, the results averaged out to:
+
+* Compilation time: `225.6 ms`
+* Size of the binary: `14 KiB`
+* Runtime speed: `1.75 ms`
 
 ### Rust (optimized for speed + libc)
 
@@ -234,7 +351,7 @@ sys     0m0.039
 
 ┌─[tautvydas][kagamin][~/tests/rust-optim-speed]
 └─▪ ls -lh target/release/optimized-speed
--rwxr-xr-x 2 tautvydas tautvydas 14K Nov 13 15:28 target/release/optimized-speed
+-rwxr-xr-x 2 tautvydas tautvydas 14K Dec 27 15:28 target/release/optimized-speed
 
 ┌─[tautvydas][kagamin][~/tests/rust-optim-speed]
 └─▪ time ./target/release/optimized-speed
@@ -245,15 +362,17 @@ user    0m0.000s
 sys     0m0.002s
 ```
 
-This time, Rust took `226` milliseconds to assemble a binary file weighing `14` kilobytes, which took `2` milliseconds to run. 
+Running 20 times, the results averaged out to:
+
+* Compilation time: `235.5 ms`
+* Size of the binary: `14 KiB`
+* Runtime speed: `1.55 ms`
 
 ## Results
 
-![wisnialang-vs-rust](/post-images/wisnialang-vs-rust.png)
+![wisnialang-vs-rust](/post-images/benchmark-results.png)
 
-WisniaLang compiled a binary in just 4 milliseconds, while Rust took 167 milliseconds, Rust optimized for size took 222 milliseconds, and Rust optimized for speed took 226 milliseconds, respectively. WisniaLang also produced the smallest binary at 0.515 KiB, while the Rust binary was 319 KiB, and the optimized Rust binaries were both 14 KiB. In terms of runtime speed, the WisniaLang binary ran for 4 milliseconds, while the Rust binary ran for 3 milliseconds, and the optimized Rust binaries both ran for 2 milliseconds.
-
-<mark>WisniaLang excels in the first two benchmark categories (compilation time and produced binary size), but falls short in the third category (speed of the binary), which remains an area for improvement.</mark>
+WisniaLang excels in the first two benchmark categories (compilation time and produced binary size), but falls short in the third category (speed of the binary), which remains an area for improvement.
 
 ## Summary
 
