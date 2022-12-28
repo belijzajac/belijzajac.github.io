@@ -246,7 +246,7 @@ user    0m0.000s
 sys     0m0.003s
 ```
 
-At first, Rust took `167` milliseconds to compile the program, which weighted `3.9` megabytes. After removing the symbols from the binary file, the program now weighs `319` kilobytes, putting it considerably behind WisniaLang.
+At first, Rust took `167 ms` to compile the program, which weighted `3.9 MiB`. After removing the symbols from the binary file, the program now weighs `319 KiB`, putting it considerably behind WisniaLang.
 
 Running 20 times, the results averaged out to:
 
