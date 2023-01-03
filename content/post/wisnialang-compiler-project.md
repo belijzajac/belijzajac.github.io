@@ -246,7 +246,7 @@ user    0m0.000s
 sys     0m0.003s
 ```
 
-At first, Rust took `167 ms` to compile the program, which weighted `3.9 MiB`. After removing the symbols from the binary file, the program now weighs `319 KiB`, putting it considerably behind WisniaLang.
+At first, Rust took `167 ms` to compile the program, which weighted `3.9 MiB`. After removing debug symbols from the binary, the binary now weighs `319 KiB`, putting it considerably behind WisniaLang.
 
 Running 20 times, the results averaged out to:
 
@@ -376,5 +376,5 @@ WisniaLang excels in the first two benchmark categories (compilation time and pr
 
 ## Summary
 
-* If compilation speed and binary file size are important, dropping the LLVM toolchain can have a positive impact
+* If compilation speed and binary size are important, dropping the LLVM toolchain can have a positive impact
 * However, doing so means missing out on LLVM optimizations as well as support for arbitrary OSes and architectures
