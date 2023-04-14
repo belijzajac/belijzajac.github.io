@@ -11,7 +11,7 @@ theme = "minimal-bootstrap-hugo-theme"
 
 [params]
   description = "belijzajac's personal blog, where he shows off some of his current, past, and future projects as well as shares personal experience of developing projects involving modern C++ and Linux!"
-  aboutAuthor = "Hi there! My online handle on GitHub is belijzajac, which is a Russian translation of \"white hare\". I am a software developer with a strong passion for C++20, Linux, and bare-metal assembly. With a solid foundation in these technologies, I am always looking for new ways to challenge myself and grow as a developer. In my free time, you can find me tinkering with new technologies and keeping up to date with the latest industry trends. Thank you for visiting my blog!"
+  aboutAuthor = "Hi there! My online handle is belijzajac, which translates to \"white hare\" in Russian. I'm a software developer with a strong passion for C++20, Rust, Linux, and compilers. With a solid foundation in these technologies, I'm always looking for new ways to challenge myself and grow as a developer. In my free time, you can find me tinkering with new technologies and keeping up to date with the latest industry trends. Thank you for visiting my blog!"
   selfieAuthor = "author.jpg"
   stickyImage1 = "shimakaze-says-1.png"
   stickyImage2 = "shimakaze-says-2.png"
