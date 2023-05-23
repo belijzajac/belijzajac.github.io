@@ -32,6 +32,19 @@ theme = "minimal-bootstrap-hugo-theme"
   faviconSafariPinnedTabColor = "#5bbad5"
   faviconMsApplicationTileColor = "#da532c"
   faviconThemeColor = "#ffffff"
+  useGiscus = true
+  giscusRepo = "belijzajac/belijzajac"
+  giscusRepoId = "R_kgDOJVyeTQ"
+  giscusCategory = "Announcements"
+  giscusCategoryId = "DIC_kwDOJVyeTc4CWr12"
+  giscusMapping = "pathname"
+  giscusStrict = 0
+  giscusReactionsEnabled = 1
+  giscusEmitMetadata = 0
+  giscusInputPosition = "top"
+  giscusTheme = "light"
+  giscusLang = "en"
+  giscusLoading = "lazy"
 
 [menu]
   [[menu.nav]]
