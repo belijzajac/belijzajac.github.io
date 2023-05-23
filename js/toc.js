@@ -13,3 +13,13 @@ window.addEventListener('DOMContentLoaded', () => {
     observer.observe(section);
   });
 });
+
+window.addEventListener('scroll', () => {
+  const scrollPosition = $(document).scrollPosition();
+  const aboutAuthorPosition = $('.separator').position().top;
+  if (scrollPosition >= aboutAuthorPosition) {
+    $('.table-of-contents').css('position', 'static');
+  } else {
+    $('.table-of-contents').css('position', 'sticky');
+  }
+});
