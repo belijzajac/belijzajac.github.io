@@ -11,7 +11,7 @@ tags: ["rust", "c", "perf", "openmp", "blockchain", "kzg-proofs", "bls12-381"]
 
 ## What’s it all about?
 
-For the Blockchain Technologies course, students were paired into groups and assigned to produce the fastest Rust library (crate) implementing the KZG10 scheme. Two teams used the same backend, that is, [blst](https://github.com/supranational/blst) (implemented in assembly with direct bindings for Rust and C). The first team,  [blst-from-scratch](https://github.com/sifraitech/kzg/tree/main/blst-from-scratch), was using the said Rust bindings to produce an interface closer to [c-kzg](https://github.com/benjaminion/c-kzg), whereas the [ckzg](https://github.com/sifraitech/kzg/tree/main/ckzg) team, which I was part of, was responsible for porting the latter over to Rust.
+For the Blockchain Technologies course, students were paired into groups and assigned to produce the fastest Rust library (crate) implementing the KZG10 scheme. Two teams used the same backend, that is, [blst](https://github.com/supranational/blst) (implemented in assembly with direct bindings for Rust and C). The first team, [blst-from-scratch](https://github.com/sifraitech/rust-kzg/tree/main/blst), was using the said Rust bindings to produce an interface closer to [c-kzg](https://github.com/benjaminion/c-kzg), whereas the [ckzg](https://github.com/sifraitech/rust-kzg/tree/main/ckzg) team, which I was part of, was responsible for porting the latter over to Rust.
 
 ## Choosing the right tool for the job
 
