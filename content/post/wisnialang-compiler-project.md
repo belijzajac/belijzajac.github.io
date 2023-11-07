@@ -1,9 +1,7 @@
 ---
 title: "WisniaLang: Compiler Project"
-date: 2022-10-17T20:55:19-05:00
-publishdate: 2022-10-17
-lastmod: 2022-12-27
-draft: false
+description: "Can we produce small and fast binaries at the same time?"
+date: 2022-10-17
 tags: ["c++", "elf", "compiler", "llvm", "rust"]
 ---
 
@@ -76,7 +74,7 @@ fn main() {
 }
 ```
 
-</td></tr> </table>
+</td></tr></table>
 
 Since I was asked to include C in the benchmark, as it has been a standard for performance for almost half a century and it is something that every benchmark of a language attempting to surpass it should include, here is an example program in C:
 
@@ -284,7 +282,9 @@ use libc::c_uint;
 
 fn foo(base: u16, number: u16) {
   if number > 0 {
-    unsafe { libc::printf("%u \0".as_ptr() as *const libc::c_char, (base * number) as c_uint); }
+    unsafe {
+      libc::printf("%u \0".as_ptr() as *const libc::c_char, (base * number) as c_uint);
+    }
     foo(base, number - 1);
   }
 }

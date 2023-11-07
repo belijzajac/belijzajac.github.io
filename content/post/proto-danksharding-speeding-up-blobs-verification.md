@@ -1,9 +1,7 @@
 ---
 title: "Proto-Danksharding: Speeding Up Blobs Verification"
-date: 2023-05-27T17:44:15-05:00
-publishdate: 2023-05-27
-lastmod: 2023-05-30
-draft: false
+description: "Learn how we sped up batched blob KZG proof verification by 161.11%"
+date: 2023-05-27
 tags: ["rust", "ethereum", "eip-4844", "kzg-proofs", "bls12-381"]
 ---
 

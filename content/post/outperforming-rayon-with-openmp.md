@@ -1,15 +1,13 @@
 ---
 title: "Outperforming Rayon with OpenMP"
-date: 2021-11-16T12:43:20-05:00
-publishdate: 2021-11-16
-lastmod: 2022-01-16
-draft: false
+description: "Replacing Rayon with OpenMP for additional gains"
+date: 2021-11-16
 tags: ["rust", "c", "perf", "openmp", "blockchain", "kzg-proofs", "bls12-381"]
 ---
 
 ![rip-craberino](/post-images/rip-craberino.jpg)
 
-## What’s it all about?
+## Introduction
 
 For the Blockchain Technologies course, students were paired into groups and assigned to produce the fastest Rust library (crate) implementing the KZG10 scheme. Two teams used the same backend, that is, <mark>[blst](https://github.com/supranational/blst)</mark> (implemented in assembly with direct bindings for Rust and C). The first team, <mark>[blst-from-scratch](https://github.com/sifraitech/rust-kzg/tree/main/blst)</mark>, was using the said Rust bindings to produce an interface closer to <mark>[c-kzg](https://github.com/benjaminion/c-kzg)</mark>, whereas the <mark>[ckzg](https://github.com/sifraitech/rust-kzg/tree/main/ckzg)</mark> team, which I was part of, was responsible for porting the latter over to Rust.
 
@@ -165,7 +163,7 @@ fft_g1/scale_14 4879448286 ns/op
 fft_g1/scale_15 10650876381 ns/op
 ```
 
-</td></tr> </table>
+</td></tr></table>
 
 That's **twice as fast** with as little effort as putting in a few pragmas!
 
