@@ -13,14 +13,3 @@ window.addEventListener('DOMContentLoaded', () => {
     observer.observe(section);
   });
 });
-
-window.addEventListener('scroll', () => {
-  const scrollPositionY = $(document).scrollTop();
-  const tocHeight = $('.table-of-contents').height();
-  const aboutAuthorPositionY = $('.separator').position().top;
-  if (scrollPositionY >= aboutAuthorPositionY - tocHeight - 35) {
-    $('.table-of-contents').css('position', 'static');
-  } else {
-    $('.table-of-contents').css('position', 'sticky');
-  }
-});
