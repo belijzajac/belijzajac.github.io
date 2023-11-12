@@ -29,7 +29,7 @@ Before going further, let me get straight to the point:
 
 ![llvm-approach](/post-images/llvm-approach.png)
 
-This is where LLVM comes in handy. LLVM uses an intermediate representation language, which is kind of similar to assembly, but with a few higher level constructs. LLVM is good at optimizing this IR language, as well as compiling into different architecture / binary formats. So as a language author using LLVM, I'm really writing a transpiler from my language -> LLVM IR, and letting the LLVM compiler do the hard work.
+This is where LLVM comes in handy. LLVM uses an intermediate representation language, which is kind of similar to assembly, but with a few higher level constructs. LLVM is good at optimizing this IR language, as well as compiling into different architecture and binary formats. So as a language author using LLVM, I'm really writing a transpiler from my language to LLVM IR, and letting the LLVM compiler do the hard work.
 
 <center><img src="/post-images/wisnialang-approach.png"></center>
 <br>
