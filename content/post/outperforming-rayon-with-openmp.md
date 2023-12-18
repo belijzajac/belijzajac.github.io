@@ -9,7 +9,7 @@ tags: ["rust", "c", "perf", "openmp", "blockchain", "kzg-proofs", "bls12-381"]
 
 ## Introduction
 
-For the Blockchain Technologies course, students were paired into groups and assigned to produce the fastest Rust library (crate) implementing the KZG10 scheme. Two teams used the same backend, that is, <mark>[blst](https://github.com/supranational/blst)</mark> (implemented in assembly with direct bindings for Rust and C). The first team, <mark>[blst-from-scratch](https://github.com/sifraitech/rust-kzg/tree/main/blst)</mark>, was using the said Rust bindings to produce an interface closer to <mark>[c-kzg](https://github.com/benjaminion/c-kzg)</mark>, whereas the <mark>[ckzg](https://github.com/sifraitech/rust-kzg/tree/main/ckzg)</mark> team, which I was part of, was responsible for porting the latter over to Rust.
+For the Blockchain Technologies course, students were paired into groups and assigned to produce the fastest Rust library (crate) implementing the KZG10 scheme. Two teams used the same backend, that is, <highlight>[blst](https://github.com/supranational/blst)</highlight> (implemented in assembly with direct bindings for Rust and C). The first team, <highlight>[blst-from-scratch](https://github.com/sifraitech/rust-kzg/tree/main/blst)</highlight>, was using the said Rust bindings to produce an interface closer to <highlight>[c-kzg](https://github.com/benjaminion/c-kzg)</highlight>, whereas the <highlight>[ckzg](https://github.com/sifraitech/rust-kzg/tree/main/ckzg)</highlight> team, which I was part of, was responsible for porting the latter over to Rust.
 
 ## Choosing the right tool for the job
 
@@ -55,7 +55,7 @@ The general procedure for looking for what to parallelize is to use CPU profilin
 
 ![flamegraph-of-fft-g1](/post-images/flame-graphu.svg)
 
-which, as I've noticed, had a huge impact on performance with the majority of calls tracing down to assembly code; a similar kzg implementation library called <mark>[go-kzg](https://github.com/protolambda/go-kzg)</mark> that was taken as a reference a few times while producing unit tests and benchmarks, showed that their `fft_g1` benchmark took the longest time to execute as well, among others.
+which, as I've noticed, had a huge impact on performance with the majority of calls tracing down to assembly code; a similar kzg implementation library called <highlight>[go-kzg](https://github.com/protolambda/go-kzg)</highlight> that was taken as a reference a few times while producing unit tests and benchmarks, showed that their `fft_g1` benchmark took the longest time to execute as well, among others.
 
 So, we have 7 groups of benchmarks:
 

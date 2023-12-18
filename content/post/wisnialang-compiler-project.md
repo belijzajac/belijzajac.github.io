@@ -9,7 +9,7 @@ tags: ["c++", "elf", "compiler", "llvm", "rust"]
 
 ## Introduction
 
-For the past 3 years, I have been working on the <mark>[WisniaLang](https://github.com/belijzajac/WisniaLang)</mark> compiler for an experimental programming language that compiles to native machine code. It focuses on delivering tiny Linux binaries (`ELF` `x86_64`) with no LLVM dependency. As a result, what it actually competes with is the LLVM toolchain, on which a large number of other programming languages rely extensively.
+For the past 3 years, I have been working on the <highlight>[WisniaLang](https://github.com/belijzajac/WisniaLang)</highlight> compiler for an experimental programming language that compiles to native machine code. It focuses on delivering tiny Linux binaries (`ELF` `x86_64`) with no LLVM dependency. As a result, what it actually competes with is the LLVM toolchain, on which a large number of other programming languages rely extensively.
 
 The reason for focusing on the delivery of small binaries with no LLVM dependency is to offer an alternative to the LLVM toolchain. While LLVM is a powerful and widely-used toolchain, it can be quite resource-intensive and may not be suitable for all scenarios. By offering a compiler that can produce efficient machine code without the need for LLVM, my aim is to provide a more lightweight and flexible solution for those who need it.
 
@@ -97,7 +97,7 @@ int main() {
 
 ## A dive deeper
 
-Let us now compare the final size of the produced binaries, as well as the time it took to assemble and run them.  <mark>TLDR: If you wish to skip the lenghty blabberings and view the results as a graphic representation, scroll to the bottom of the page.</mark>
+Let us now compare the final size of the produced binaries, as well as the time it took to assemble and run them.  <highlight>TLDR: If you wish to skip the lenghty blabberings and view the results as a graphic representation, scroll to the bottom of the page.</highlight>
 
 ### WisniaLang
 
