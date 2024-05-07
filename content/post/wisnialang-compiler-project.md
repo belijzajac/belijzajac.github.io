@@ -9,15 +9,15 @@ tags: ["c++", "elf", "compiler", "llvm", "rust"]
 
 ## Introduction
 
-For the past 3 years, I have been working on the <highlight>[WisniaLang](https://github.com/belijzajac/WisniaLang)</highlight> compiler for an experimental programming language that compiles to native machine code. It focuses on delivering tiny Linux binaries (`ELF` `x86_64`) with no LLVM dependency. As a result, what it actually competes with is the LLVM toolchain, on which a large number of other programming languages rely extensively.
+For the past 3 years, I have been working on the <highlight>[WisniaLang](https://github.com/belijzajac/WisniaLang)</highlight> compiler for my own programming language that compiles to native machine code and packs it into an executable by itself. Unlike many others, I rolled out my own compiler backend from scratch that does fast but naive code generation. While it's admittedly a more old-fashioned approach to compiler engineering, it's the path I chose to take when developing my compiler.
 
-The reason for focusing on the delivery of small binaries with no LLVM dependency is to offer an alternative to the LLVM toolchain. While LLVM is a powerful and widely-used toolchain, it can be quite resource-intensive and may not be suitable for all scenarios. By offering a compiler that can produce efficient machine code without the need for LLVM, my aim is to provide a more lightweight and flexible solution for those who need it.
+Many in the field rely on LLVM Intermediate Representation (IR) for their compilers, which can feel somewhat like cheating. Essentially, they’re just tapping into LLVM’s optimizations and claiming ownership of the result. Then they compare their LLVM-based language #5646545 to another LLVM-based language #5646698, touting superior benchmark results, all while benefiting from LLVM’s optimizations. Truly, the LLVM project has a lot of man hours poured into optimizations. Interestingly, I have heard that even established compilers like those for Fortran are switching over to LLVM, following the trend.
 
 ## Architecture
 
 ![architecture](/post-images/wisnialang-architecture.png)
 
-The architecture of the compiler consists of several main phases, which work together to perform this translation. These phases include lexical analysis, which breaks the source code down into smaller units called tokens; syntactic analysis, which builds a representation of the structure of the source code called an abstract syntax tree (AST); semantic analysis, which checks the AST for semantic errors and performs type checking; intermediate representation (IR), which represents the code in a lower-level form that is easier for the compiler to work with; code generation, which generates machine code from the IR; optimization, which improves the performance of the machine code; and linking, which combines the machine code to create a complete executable program in ELF (Executable and Linking Format) format.
+My compiler's architecture is divided into several main phases that work together to complete this translation. These phases include lexical analysis, which breaks the source code down into smaller pieces called tokens; syntactic analysis, which builds a representation of the structure of the source code called an abstract syntax tree (AST); semantic analysis, which checks the AST for semantic errors while traversing the tree; intermediate representation (IR), which represents the code in a lower-level form close to the target architecture; code generation, which allocates registers and generates machine code from the said IRs; and, lastly, packing the resulting machine code into an executable program in ELF format.
 
 ## Programming languages and LLVM
 
@@ -31,348 +31,201 @@ Before going further, let me get straight to the point:
 
 This is where LLVM comes in handy. LLVM uses an intermediate representation language, which is kind of similar to assembly, but with a few higher level constructs. LLVM is good at optimizing this IR language, as well as compiling into different architecture and binary formats. So as a language author using LLVM, I'm really writing a transpiler from my language to LLVM IR, and letting the LLVM compiler do the hard work.
 
-<center><img src="/post-images/wisnialang-approach.png"></center>
-<br>
+---
 
-WisniaLang is an amateurish project that takes a more traditional approach to compiler design compared to other LLVM-based programming languages. Despite its amateur status, WisniaLang still follows the same front-end procedures as other programming languages in the LLVM family. However, it differs in the way it handles certain tasks, such as register allocation, machine code generation, and ELF binary format construction. Instead of relying on LLVM or other external tools for these tasks, WisniaLang handles them on its own. This approach allows WisniaLang to have more control over the compilation process, but it also requires more work and expertise on the part of its developers.
+You talk about LLVM so much, why's that? Let me begin with this illustration:
 
-## Example programs
+![llvm-family](/post-images/llvm-family.png)
 
-Let's take a look at simple programs and see how a handwritten compiler compares to Rust, an LLVM-based programming language. Both compilers generate the identical number sequence, `3000 2997 ... 6 3 1`, for both programs.
+I'm not sure if it's a positive thing, but the LLVM project has achieved such widespread adoption that it's almost reached a monopoly status, much like the Chromium project, for instance. Apart from Google Chrome, numerous other browsers are built upon the Chromium codebase. From Electron web apps to Arc, Microsoft Edge, Opera, Vivaldi, Brave, and beyond, the list just goes on. Firefox and Safari are perhaps the only web browsers that stand out from this copy-paste crowd.
 
-<table>
-<tr><th>WisniaLang</th><th>Rust</th></tr>
-<tr><td>
+I just wanted to point out that while 99.9% of compiler developers opt for LLVM, the remaining few explore alternative compiler backends like <highlight>[QBE](https://c9x.me/compile/)</highlight>, develop interpreters (like Python), or create virtual machines (such as the JVM for Java and Kotlin). Some even write transpilers that convert high-level languages into something low-level like C, which is then compiled with gcc. If you recall the dragon compiler book appearing at the top of this page, these and similar compiler books are gradually losing relevance because they don't teach how to use LLVM, the industry's compiler standard.
+
+
+## Performing benchmarks
+
+To benchmark different compilers, I chose the Fibonacci sequence without recursion problem and computed the 46th Fibonacci number with each compiler under test. This number was chosen because it conveniently fits within 32 bits. Compile-time and runtime benchmarks were performed using the <highlight>[hyperfine](https://github.com/sharkdp/hyperfine)</highlight> command-line benchmarking tool, which closely resembles Rust's <highlight>[Criterion](https://github.com/bheisler/criterion.rs)</highlight> benchmarking library. Binary size benchmarks were carried out using standard Linux tools like `strip` to remove debug symbols from binaries and `wc` to display byte counts for each binary file.
+
+### WisniaLang benchmark
 
 ```rust
-fn foo(base: int, number: int) {                    
-  if (number) {
-    print(base * number, " ");
-    foo(base, number - 1);
+fn fibonacci(n: int) -> int {
+  if (n <= 1) {
+    return n;
   }
+  int prev = 0;
+  int current = 1;
+  for (int i = 2; i <= n; i = i + 1) {
+    int next = prev + current;
+    prev = current;
+    current = next;
+  }
+  return current;
 }
 
 fn main() {
-  foo(3, 1000);
-  print("1\n");
+  print(fibonacci(46));
 }
 ```
 
-</td><td>
+<h4>Compile time</h4>
 
-```rust
-fn foo(base: u16, number: u16) {                    
-  if number > 0 {
-    print!("{} ", base * number);
-    foo(base, number - 1);
-  }
-}
-
-fn main() {
-  foo(3, 1000);
-  print!("1\n");
-}
+```bash
+hyperfine --runs 1000 --warmup 10 --shell=none './wisnia fibonacci.wsn'
+Benchmark 1: ./wisnia fibonacci.wsn
+  Time (mean ± σ):       1.6 ms ±   0.3 ms    [User: 0.8 ms, System: 0.5 ms]
+  Range (min … max):     1.3 ms …   8.7 ms    1000 runs
 ```
 
-</td></tr></table>
+<h4>Runtime</h4>
 
-Since I was asked to include C in the benchmark, as it has been a standard for performance for almost half a century and it is something that every benchmark of a language attempting to surpass it should include, here is an example program in C:
+```bash
+hyperfine --runs 1000 --warmup 10 --shell=none './a.out'
+Benchmark 1: ./a.out
+  Time (mean ± σ):     109.6 µs ±  36.8 µs    [User: 58.2 µs, System: 4.7 µs]
+  Range (min … max):    84.0 µs … 736.3 µs    1000 runs
 
-```c
-#include <stdint.h>
-#include <stdio.h>
+```
 
-void foo(uint16_t base, uint16_t number) {
-  if (number) {
-    printf("%u ", base * number);
-    foo(base, number - 1);
+<h4>Binary size</h4>
+
+```bash
+wc -c a.out 
+421 a.out
+
+```
+
+### C++ (gcc) benchmark
+
+```cpp
+#include <iostream>
+
+constexpr auto fibonacci(u_int32_t n) {
+  if (n <= 1) {
+    return n;
   }
+  u_int32_t prev = 0, current = 1;
+  for (size_t i = 2; i <= n; i++) {
+    u_int32_t next = prev + current;
+    prev = current;
+    current = next;
+  }
+  return current;
 }
 
 int main() {
-  foo(3, 1000);
-  printf("1\n");
+  std::printf("%d", fibonacci(46));
 }
 ```
 
-## A dive deeper
-
-Let us now compare the final size of the produced binaries, as well as the time it took to assemble and run them.  <highlight>TLDR: If you wish to skip the lenghty blabberings and view the results as a graphic representation, scroll to the bottom of the page.</highlight>
-
-### WisniaLang
+<h4>Compile time</h4>
 
 ```bash
-┌─[tautvydas][kagamin][~/tests]
-└─▪ time ./wisnia test.wsn
-real    0m0.004s
-user    0m0.002s
-sys     0m0.001s
-
-┌─[tautvydas][kagamin][~/tests]
-└─▪ ls -lh a.out
--rwxrwxrwx 1 tautvydas tautvydas 528 Dec 27 17:20 a.out
-
-┌─[tautvydas][kagamin][~/tests]
-└─▪ time ./a.out
-3000 2997 2994 2991 (omitted by the author)
-
-real    0m0.004s
-user    0m0.000s
-sys     0m0.004s
+hyperfine --runs 100 --warmup 10 --shell=none 'gcc -std=c++23 -O3 fibonacci.cpp'
+Benchmark 1: gcc -std=c++23 -O3 fibonacci.cpp
+  Time (mean ± σ):     456.4 ms ±   4.5 ms    [User: 415.8 ms, System: 35.2 ms]
+  Range (min … max):   448.9 ms … 472.1 ms    100 runs
 ```
 
-Running 20 times, the results averaged out to:
-
-* Compilation time: `3.3 ms`
-* Size of the binary: `0.515 KiB`
-* Runtime speed: `4.25 ms`
-
-### C
+<h4>Runtime</h4>
 
 ```bash
-┌─[tautvydas][kagamin][~/tests]
-└─▪ time gcc test.c
-real    0m0.040s
-user    0m0.025s
-sys     0m0.015s
-
-┌─[tautvydas][kagamin][~/tests]
-└─▪ ls -lh a.out
--rwxr-xr-x 1 tautvydas tautvydas 16K Dec 27 12:39 a.out
-
-┌─[tautvydas][kagamin][~/tests]
-└─▪ time ./a.out
-3000 2997 2994 2991 (omitted by the author)
-
-real    0m0.002s
-user    0m0.001s
-sys     0m0.001s
+hyperfine --runs 1000 --warmup 10 --shell=none './a.out'
+Benchmark 1: ./a.out
+  Time (mean ± σ):     347.1 µs ±  62.8 µs    [User: 206.4 µs, System: 67.2 µs]
+  Range (min … max):   271.9 µs … 926.4 µs    1000 runs
 ```
 
-Running 20 times, the results averaged out to:
-
-* Compilation time: `38.05 ms`
-* Size of the binary: `16 KiB`
-* Runtime speed: `1.6 ms`
-
-### C (optimized for size)
+<h4>Binary size</h4>
 
 ```bash
-┌─[tautvydas][kagamin][~/tests]
-└─▪ time gcc -Os -s test.c
-real    0m0.045s
-user    0m0.028s
-sys     0m0.017s
-
-┌─[tautvydas][kagamin][~/tests]
-└─▪ ls -lh a.out
--rwxr-xr-x 1 tautvydas tautvydas 15K Dec 27 12:41 a.out
-
-┌─[tautvydas][kagamin][~/tests]
-└─▪ time ./a.out
-3000 2997 2994 2991 (omitted by the author)
-
-real    0m0.002s
-user    0m0.002s
-sys     0m0.000s
+strip a.out 
+wc -c a.out 
+14472 a.out
 ```
 
-Running 20 times, the results averaged out to:
+### C++ (clang) benchmark
 
-* Compilation time: `42.15 ms`
-* Size of the binary: `15 KiB`
-* Runtime speed: `1.7 ms`
+Same program as before, just different compiler.
 
-### C (optimized for speed)
+<h4>Compile time</h4>
 
 ```bash
-┌─[tautvydas][kagamin][~/tests]
-└─▪ time gcc -O3 -s test.c
-real    0m0.046s
-user    0m0.033s
-sys     0m0.012s
-
-┌─[tautvydas][kagamin][~/tests]
-└─▪ ls -lh a.out
--rwxr-xr-x 1 tautvydas tautvydas 15K Dec 27 12:42 a.out
-
-┌─[tautvydas][kagamin][~/tests]
-└─▪ time ./a.out
-3000 2997 2994 2991 (omitted by the author)
-
-real    0m0.002s
-user    0m0.000s
-sys     0m0.002s
+hyperfine --runs 100 --warmup 10 --shell=none 'clang -std=c++2b -O3 fibonacci.cpp'
+Benchmark 1: clang -std=c++2b -O3 fibonacci.cpp
+  Time (mean ± σ):     538.2 ms ±  16.9 ms    [User: 481.7 ms, System: 45.7 ms]
+  Range (min … max):   524.3 ms … 657.9 ms    100 runs
 ```
 
-Running 20 times, the results averaged out to:
-
-* Compilation time: `47.75 ms`
-* Size of the binary: `15 KiB`
-* Runtime speed: `1.6 ms`
-
-### Rust
+<h4>Runtime</h4>
 
 ```bash
-┌─[tautvydas][kagamin][~/tests]
-└─▪ rustc --version
-rustc 1.65.0 (897e37553 2022-11-02)
-
-┌─[tautvydas][kagamin][~/tests]
-└─▪ time rustc test.rs 
-real    0m0.167s
-user    0m0.131s
-sys     0m0.042s
-
-┌─[tautvydas][kagamin][~/tests]
-└─▪ ls -lh test
--rwxr-xr-x 1 tautvydas tautvydas 3.9M Dec 27 15:26 test
-
-┌─[tautvydas][kagamin][~/tests]
-└─▪ strip test
-
-┌─[tautvydas][kagamin][~/tests]
-└─▪ ls -lh test
--rwxr-xr-x 1 tautvydas tautvydas 319K Dec 27 15:26 test
-
-┌─[tautvydas][kagamin][~/tests]
-└─▪ time ./test 
-3000 2997 2994 2991 (omitted by the author)
-
-real    0m0.003s
-user    0m0.000s
-sys     0m0.003s
+hyperfine --runs 1000 --warmup 10 --shell=none './a.out'
+Benchmark 1: ./a.out
+  Time (mean ± σ):     351.4 µs ±  67.7 µs    [User: 203.2 µs, System: 72.2 µs]
+  Range (min … max):   267.1 µs … 984.8 µs    1000 runs
 ```
 
-At first, Rust took `167 ms` to compile the program, which weighted `3.9 MiB`. After removing debug symbols from the binary, the binary now weighs `319 KiB`, putting it considerably behind WisniaLang.
+<h4>Binary size</h4>
 
-Running 20 times, the results averaged out to:
-
-* Compilation time: `156.2 ms`
-* Size of the binary: `319 KiB`
-* Runtime speed: `2.15 ms`
-
-### Rust (optimized for size + libc)
-
-This would necessitate a revision of the previously mentioned sample program to utilize `libc` rather than the standard library (`std::*`). The `Cargo.toml` file is provided below, along with a revised example program.
-
-```text
-[package]
-name = "optimized-size"
-version = "0.1.0"
-
-[profile.release]
-panic = "abort"
-lto = true
-strip = true
-codegen-units = 1
-incremental = false
-opt-level = "z"
-
-[dependencies]
-libc = { version = "0.2", default-features = false }
+```bash
+strip a.out 
+wc -c a.out 
+14504 a.out
 ```
+
+### Rust benchmark
 
 ```rust
-#![no_std]
-#![no_main]
-
-extern crate libc;
-use libc::c_uint;
-
-fn foo(base: u16, number: u16) {
-  if number > 0 {
-    unsafe {
-      libc::printf("%u \0".as_ptr() as *const libc::c_char, (base * number) as c_uint);
-    }
-    foo(base, number - 1);
+fn fibonacci(n: u32) -> u32 {
+  if n <= 1 {
+    return n;
   }
+  let (mut prev, mut current) = (0, 1);
+  for _ in 2..=n {
+    let next = prev + current;
+    prev = current;
+    current = next;
+  }
+  current
 }
 
-#[no_mangle]
-pub extern "C" fn main() {
-  unsafe {
-    foo(3, 1000);
-    libc::printf("1\n".as_ptr() as *const libc::c_char);
-    libc::exit(0)
-  }
-}
-
-#[panic_handler]
-fn my_panic(_info: &core::panic::PanicInfo) -> ! {
-  loop {}
+fn main() {
+  println!("{}", fibonacci(46));
 }
 ```
 
-Let's see how well it performs now, excluding the time it took to compile `libc`.
+<h4>Compile time</h4>
 
 ```bash
-┌─[tautvydas][kagamin][~/tests/rust-optim-size]
-└─▪ time cargo build --release
-   Compiling optimized-size v0.1.0 (~/tests/rust-optim-size)
-    Finished release [optimized] target(s) in 0.17s
-
-real    0m0.222s
-user    0m0.188s
-sys     0m0.034s
-
-┌─[tautvydas][kagamin][~/tests/rust-optim-size]
-└─▪ ls -lh target/release/optimized-size
--rwxr-xr-x 2 tautvydas tautvydas 14K Dec 27 15:27 target/release/optimized-size
-
-┌─[tautvydas][kagamin][~/tests/rust-optim-size]
-└─▪ time ./target/release/optimized-size 
-3000 2997 2994 2991 (omitted by the author)
-
-real    0m0.002s
-user    0m0.000s
-sys     0m0.002s
+hyperfine --runs 100 --warmup 10 --shell=none 'rustc -C opt-level=3 fibonacci.rs'
+Benchmark 1: rustc -C opt-level=3 fibonacci.rs
+  Time (mean ± σ):     173.4 ms ±   3.0 ms    [User: 130.5 ms, System: 51.2 ms]
+  Range (min … max):   168.6 ms … 183.8 ms    100 runs
 ```
 
-Running 20 times, the results averaged out to:
-
-* Compilation time: `225.6 ms`
-* Size of the binary: `14 KiB`
-* Runtime speed: `1.75 ms`
-
-### Rust (optimized for speed + libc)
-
-Same `Cargo.toml` file as before, but with `opt-level` set to `3`.
+<h4>Runtime</h4>
 
 ```bash
-┌─[tautvydas][kagamin][~/tests/rust-optim-speed]
-└─▪ time cargo build --release
-   Compiling optimized-speed v0.1.0 (~/tests/rust-optim-speed)
-    Finished release [optimized] target(s) in 0.17s
-
-real    0m0.226s
-user    0m0.187s
-sys     0m0.039
-
-┌─[tautvydas][kagamin][~/tests/rust-optim-speed]
-└─▪ ls -lh target/release/optimized-speed
--rwxr-xr-x 2 tautvydas tautvydas 14K Dec 27 15:28 target/release/optimized-speed
-
-┌─[tautvydas][kagamin][~/tests/rust-optim-speed]
-└─▪ time ./target/release/optimized-speed
-3000 2997 2994 2991 (omitted by the author)
-
-real    0m0.002s
-user    0m0.000s
-sys     0m0.002s
+hyperfine --runs 1000 --warmup 10 --shell=none './fibonacci'
+Benchmark 1: ./fibonacci
+  Time (mean ± σ):     490.4 µs ±  82.8 µs    [User: 264.9 µs, System: 129.3 µs]
+  Range (min … max):   375.1 µs … 1092.6 µs    1000 runs
 ```
 
-Running 20 times, the results averaged out to:
+<h4>Binary size</h4>
 
-* Compilation time: `235.5 ms`
-* Size of the binary: `14 KiB`
-* Runtime speed: `1.55 ms`
+```bash
+strip fibonacci
+wc -c fibonacci
+321920 fibonacci
+```
 
 ## Results
 
 ![wisnialang-vs-rust](/post-images/benchmark-results.png)
 
-WisniaLang excels in the first two benchmark categories (compilation time and produced binary size), but falls short in the third category (speed of the binary), which remains an area for improvement.
+Combining mean compile time, runtime, and binary sizes from benchmark results, we obtain the following graph. To be honest, I'm quite impressed by my compiler's generated binary's runtime performance. However, it's important to acknowledge that the runtime range for WisniaLang was `84.0 µs` to `736.3 µs` over 1000 program runs, indicating ambiguous results due to benchmarking a program of less than 20 lines of code. In the real world, to accurately assess a compiler backend's performance, one would need to run benchmarks on millions of lines of code.
 
 ## Summary
 
