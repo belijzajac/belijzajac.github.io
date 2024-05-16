@@ -11,8 +11,6 @@ tags: ["c++", "elf", "compiler", "llvm", "rust"]
 
 For the past 3 years, I have been working on the <highlight>[WisniaLang](https://github.com/belijzajac/WisniaLang)</highlight> compiler for my own programming language that compiles to native machine code and packs it into an executable by itself. Unlike many others, I rolled out my own compiler backend from scratch that does fast but naive code generation. While it's admittedly a more old-fashioned approach to compiler engineering, it's the path I chose to take when developing my compiler.
 
-Many in the field rely on LLVM Intermediate Representation (IR) for their compilers, which can feel somewhat like cheating. Essentially, they’re just tapping into LLVM’s optimizations and claiming ownership of the result. Then they compare their LLVM-based language #5646545 to another LLVM-based language #5646698, touting superior benchmark results, all while benefiting from LLVM’s optimizations. Truly, the LLVM project has a lot of man hours poured into optimizations. Interestingly, I have heard that even established compilers like those for Fortran are switching over to LLVM, following the trend.
-
 ## Architecture
 
 ![architecture](/post-images/wisnialang-architecture.png)
