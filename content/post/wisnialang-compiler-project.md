@@ -39,8 +39,7 @@ I'm not sure if it's a positive thing, but the LLVM project has achieved such wi
 
 I just wanted to point out that while 99.9% of compiler developers opt for LLVM, the remaining few explore alternative compiler backends like <highlight>[QBE](https://c9x.me/compile/)</highlight>, develop interpreters (like Python), or create virtual machines (such as the JVM for Java and Kotlin). Some even write transpilers that convert high-level languages into something low-level like C, which is then compiled with gcc. If you recall the dragon compiler book appearing at the top of this page, these and similar compiler books are gradually losing relevance because they don't teach how to use LLVM, the industry's compiler standard.
 
-
-## Performing benchmarks
+## Benchmark No. 1: Fibonacci sequence
 
 To benchmark different compilers, I chose the Fibonacci sequence without recursion problem and computed the 46th Fibonacci number with each compiler under test. This number was chosen because it conveniently fits within 32 bits. Compile-time and runtime benchmarks were performed using the <highlight>[hyperfine](https://github.com/sharkdp/hyperfine)</highlight> command-line benchmarking tool, which closely resembles Rust's <highlight>[Criterion](https://github.com/bheisler/criterion.rs)</highlight> benchmarking library. Binary size benchmarks were carried out using standard Linux tools like `strip` to remove debug symbols from binaries and `wc` to display byte counts for each binary file.
 
@@ -88,7 +87,7 @@ Benchmark 1: ./a.out
 <h4>Binary size</h4>
 
 ```bash
-wc -c a.out 
+wc -c a.out
 421 a.out
 
 ```
@@ -137,8 +136,8 @@ Benchmark 1: ./a.out
 <h4>Binary size</h4>
 
 ```bash
-strip a.out 
-wc -c a.out 
+strip a.out
+wc -c a.out
 14472 a.out
 ```
 
@@ -167,8 +166,8 @@ Benchmark 1: ./a.out
 <h4>Binary size</h4>
 
 ```bash
-strip a.out 
-wc -c a.out 
+strip a.out
+wc -c a.out
 14504 a.out
 ```
 
@@ -219,11 +218,144 @@ wc -c fibonacci
 321920 fibonacci
 ```
 
+## Benchmark No. 2: 29'988 lines of code
+
+I wrote a <highlight>[Python script](/post-data/main.py)</highlight> that generates program code for WisniaLang, C++, and Rust. It generates similar calls to a function named `calculate_1997`, such as `calculate_1`, `calculate_2`, and `calculate_1999`, for over 2000 times:
+
+```cpp
+...
+void calculate_1997() {
+  int i = 0;
+  int a = 0;
+  int b = 0;
+  while (b < 1997) {
+    a = a + b + i;
+    b = a - b - i;
+    int c = a + b;
+    int d = a + b + c;
+    int e = a + b + c + d;
+    int f = a + b + c + d + e;
+    i = f - e - d - c + 1;
+  }
+}
+...
+int main() {
+  ...
+  calculate_1997();
+  ...
+}
+```
+
+You can run this script with `python3.7 main.py --wisnia --cpp --rust 2000`.
+
+### WisniaLang benchmark
+
+The program can be found at <highlight>[post-data/calculate.wsn](/post-data/calculate.wsn)</highlight>.
+
+<h4>Compile time</h4>
+
+```bash
+hyperfine --runs 20 --warmup 1 --shell=none './wisnia calculate.wsn'
+Benchmark 1: ./wisnia calculate.wsn
+  Time (mean ± σ):      2.367 s ±  0.054 s    [User: 2.328 s, System: 0.036 s]
+  Range (min … max):    2.282 s …  2.466 s    20 runs
+```
+
+<h4>Binary size</h4>
+
+```bash
+wc -c a.out
+336025 a.out
+```
+
+### C++ (gcc) benchmark
+
+The program can be found at <highlight>[post-data/calculate.cpp](/post-data/calculate.cpp)</highlight>.
+
+<h4>Compile time</h4>
+
+```bash
+hyperfine --runs 20 --warmup 1 --shell=none 'gcc -std=c++23 -O3 calculate.cpp'
+Benchmark 1: gcc -std=c++23 -O3 calculate.cpp
+  Time (mean ± σ):      2.177 s ±  0.009 s    [User: 2.110 s, System: 0.064 s]
+  Range (min … max):    2.156 s …  2.193 s    20 runs
+```
+
+<h4>Binary size</h4>
+
+```bash
+strip a.out
+wc -c a.out
+96304 a.out
+```
+
+### C++ (clang) benchmark
+
+Same program as before, just different compiler.
+
+<h4>Compile time</h4>
+
+```bash
+hyperfine --runs 20 --warmup 1 --shell=none 'clang -std=c++2b -O3 calculate.cpp'
+Benchmark 1: clang -std=c++2b -O3 calculate.cpp
+  Time (mean ± σ):      2.179 s ±  0.025 s    [User: 2.125 s, System: 0.048 s]
+  Range (min … max):    2.156 s …  2.252 s    20 runs
+```
+
+<h4>Binary size</h4>
+
+```bash
+strip a.out
+wc -c a.out
+96336 a.out
+```
+
+### Rust benchmark
+
+The program can be found at <highlight>[post-data/calculate.rs](/post-data/calculate.rs)</highlight>.
+
+<h4>Compile time</h4>
+
+```bash
+hyperfine --runs 20 --warmup 1 --shell=none 'rustc -C opt-level=3 calculate.rs'
+Benchmark 1: rustc -C opt-level=3 calculate.rs
+  Time (mean ± σ):      2.353 s ±  0.027 s    [User: 2.268 s, System: 0.095 s]
+  Range (min … max):    2.324 s …  2.436 s    20 runs
+```
+
+<h4>Binary size</h4>
+
+```bash
+strip calculate
+wc -c calculate
+317824 calculate
+```
+
 ## Results
 
-![wisnialang-vs-rust](/post-images/benchmark-results.png)
+Combining mean compile time, runtime, and binary sizes from benchmark results, we obtain the following graphs.
 
-Combining mean compile time, runtime, and binary sizes from benchmark results, we obtain the following graph. To be honest, I'm quite impressed by my compiler's generated binary's runtime performance. However, it's important to acknowledge that the runtime range for WisniaLang was `84.0 µs` to `736.3 µs` over 1000 program runs, indicating ambiguous results due to benchmarking a program of less than 20 lines of code. In the real world, to accurately assess a compiler backend's performance, one would need to run benchmarks on millions of lines of code.
+![benchmark-results-1](/post-images/benchmark-1.png)
+
+The runtime range for WisniaLang was from `84.0 µs` to `736.3 µs` over 1000 program runs, indicating ambiguous results due to benchmarking a 17-line program that executes 3 lines of code 45 times. However, this does demonstrate the speed at which we can compile small programs. In the future, I plan to report on the recursive Fibonacci sequence.
+
+![benchmark-results-1](/post-images/benchmark-2.png)
+
+WisniaLang generates code as fast as established compilers, but this may be because it doesn't perform many static code analysis or optimization steps. This has resulted in my binary being quite large. In contrast, C++ optimizes out redundant code, simplifying the while loop to use at most three variables. This is the while loop in question:
+
+```cpp
+while (b < 1997) {
+  a = a + b + i;
+  b = a - b - i;
+  int c = a + b;
+  int d = a + b + c;
+  int e = a + b + c + d;
+  int f = a + b + c + d + e;
+  i = f - e - d - c + 1;
+}
+```
+
+What I mean is that C++ likely optimized the code to use only three variables -- `a`, `b`, and `i` -- by substituting the values of `c`, `d`, `e`, and `f` directly, thereby reducing redundancy. This is something I'll fix in the later releases of WisniaLang.
 
 ## Summary
 
