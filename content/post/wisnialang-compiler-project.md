@@ -118,8 +118,8 @@ int main() {
 <h4>Compile time</h4>
 
 ```bash
-hyperfine --runs 100 --warmup 10 --shell=none 'gcc -std=c++23 -O3 fibonacci.cpp'
-Benchmark 1: gcc -std=c++23 -O3 fibonacci.cpp
+hyperfine --runs 100 --warmup 10 --shell=none 'g++ -std=c++23 -O3 fibonacci.cpp'
+Benchmark 1: g++ -std=c++23 -O3 fibonacci.cpp
   Time (mean ± σ):     456.4 ms ±   4.5 ms    [User: 415.8 ms, System: 35.2 ms]
   Range (min … max):   448.9 ms … 472.1 ms    100 runs
 ```
@@ -148,8 +148,8 @@ Same program as before, just different compiler.
 <h4>Compile time</h4>
 
 ```bash
-hyperfine --runs 100 --warmup 10 --shell=none 'clang -std=c++2b -O3 fibonacci.cpp'
-Benchmark 1: clang -std=c++2b -O3 fibonacci.cpp
+hyperfine --runs 100 --warmup 10 --shell=none 'clang++ -std=c++2b -O3 fibonacci.cpp'
+Benchmark 1: clang++ -std=c++2b -O3 fibonacci.cpp
   Time (mean ± σ):     538.2 ms ±  16.9 ms    [User: 481.7 ms, System: 45.7 ms]
   Range (min … max):   524.3 ms … 657.9 ms    100 runs
 ```
@@ -246,7 +246,7 @@ int main() {
 }
 ```
 
-You can run this script with `python3.7 main.py --wisnia --cpp --rust 2000`.
+You can run this script with `python main.py --wisnia --cpp --rust 2000`.
 
 ### WisniaLang benchmark
 
@@ -275,8 +275,8 @@ The program can be found at <highlight>[post-data/calculate.cpp](/post-data/calc
 <h4>Compile time</h4>
 
 ```bash
-hyperfine --runs 20 --warmup 1 --shell=none 'gcc -std=c++23 -O3 calculate.cpp'
-Benchmark 1: gcc -std=c++23 -O3 calculate.cpp
+hyperfine --runs 20 --warmup 1 --shell=none 'g++ -std=c++23 -O3 calculate.cpp'
+Benchmark 1: g++ -std=c++23 -O3 calculate.cpp
   Time (mean ± σ):      2.177 s ±  0.009 s    [User: 2.110 s, System: 0.064 s]
   Range (min … max):    2.156 s …  2.193 s    20 runs
 ```
@@ -296,8 +296,8 @@ Same program as before, just different compiler.
 <h4>Compile time</h4>
 
 ```bash
-hyperfine --runs 20 --warmup 1 --shell=none 'clang -std=c++2b -O3 calculate.cpp'
-Benchmark 1: clang -std=c++2b -O3 calculate.cpp
+hyperfine --runs 20 --warmup 1 --shell=none 'clang++ -std=c++2b -O3 calculate.cpp'
+Benchmark 1: clang++ -std=c++2b -O3 calculate.cpp
   Time (mean ± σ):      2.179 s ±  0.025 s    [User: 2.125 s, System: 0.048 s]
   Range (min … max):    2.156 s …  2.252 s    20 runs
 ```
@@ -355,7 +355,7 @@ while (b < 1997) {
 }
 ```
 
-What I mean is that C++ likely optimized the code to use only three variables -- `a`, `b`, and `i` -- by substituting the values of `c`, `d`, `e`, and `f` directly, thereby reducing redundancy. This is something I'll fix in the later releases of WisniaLang.
+What I mean is that C++ likely optimized the code to use only three variables -- `a`, `b`, and `i` -- by substituting the values of `c`, `d`, `e`, and `f` directly, thereby reducing redundancy. This is something I'll fix in the future releases of WisniaLang.
 
 ## Summary
 
