@@ -4,5 +4,5 @@
 [![pages-build-deployment](https://github.com/belijzajac/belijzajac.github.io/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/belijzajac/belijzajac.github.io/actions/workflows/pages/pages-build-deployment)
 
 ```bash
-hugo server -D
+hugo server --disableFastRender
 ```
