@@ -3,19 +3,18 @@ languageCode = "en-us"
 title = "belijzajac.dev"
 theme = "minimal-bootstrap-hugo-theme"
 
-[taxonomies]
-  tag = "tags"
-
 [permalinks]
   post = "/:filename/"
 
 [author]
   name = "belijzajac"
   email = "blog@belijzajac.dev"
+  intro = "belijzajac (\"white hare\")"
+  description = "Welcome to my personal blog! The content here is independent of my professional work and offers a glimpse into my personal interests."
 
 [params]
   description = "belijzajac's personal blog, where he shows off some of his current, past, and future projects as well as shares personal experience of developing projects involving modern C++ and Linux!"
-  aboutAuthor = "Hi there! My online handle is belijzajac, which translates to \"white hare\" in Russian. I'm a software developer with a strong passion for C++20, Rust, Linux, and compilers. With a solid foundation in these technologies, I'm always looking for new ways to challenge myself and grow as a developer. In my free time, you can find me tinkering with new technologies and keeping up to date with the latest industry trends. Thank you for visiting my blog!"
+  aboutAuthor = "Hi there! My online handle is belijzajac, which translates to \"white hare\" in Russian. I'm a software developer with a strong passion for C++, Rust, Linux, and compilers. With a solid foundation in these technologies, I'm always looking for new ways to challenge myself and grow as a developer. In my free time, you can find me tinkering with new technologies and keeping up to date with the latest industry trends. Thank you for visiting my blog!"
   selfieAuthor = "author.jpg"
   githubLink = "https://github.com/belijzajac"
   twitterLink = "https://twitter.com/belijzajac"
@@ -54,7 +53,7 @@ theme = "minimal-bootstrap-hugo-theme"
 
 [menu]
   [[menu.nav]]
-  name = "Posts"
+  name = "Home"
   url = "/"
   weight = 1
   [[menu.nav]]
