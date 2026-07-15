@@ -4,7 +4,7 @@ title = "belijzajac.dev"
 theme = "minimal-bootstrap-hugo-theme"
 
 [permalinks]
-  post = "/:filename/"
+  post = "/:contentbasename/"
 
 [params]
   authorName = "belijzajac"
